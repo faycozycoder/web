@@ -1,0 +1,17 @@
+{
+  "name": "produk-lokal-by-kopia",
+  "version": "1.0.0",
+  "description": "Produk_lokal by kopia - Direct Commerce Platform Promo Produk Lokal & UMKM",
+  "scripts": {
+    "start": "npx -y serve -l 3000 .",
+    "dev": "npx -y serve -l 3000 ."
+  },
+  "keywords": [
+    "produk-lokal",
+    "kopia",
+    "direct-commerce",
+    "umkm-indonesia"
+  ],
+  "author": "",
+  "license": "ISC"
+}
