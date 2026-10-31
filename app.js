@@ -88,6 +88,9 @@ function initFirestoreSync() {
 
   // 3. Realtime Smart Order Memory Sync from Cloud Firestore
   syncSavedOrderFromFirestore();
+
+  // 4. Catat trafik pengunjung landing page untuk metrik Admin Dashboard
+  recordLandingPageVisitor();
 }
 
 // 3. Sync Last Order from Cloud Firestore (Smart Order Memory)
@@ -135,9 +138,36 @@ function logWhatsAppLeadToFirestore(productId, sellerName) {
   db.collection('leads').add({
     productId: productId || 'unknown',
     seller: sellerName || 'Unknown Seller',
-    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    createdAt: (typeof firebase !== 'undefined' && firebase.firestore && firebase.firestore.FieldValue)
+      ? firebase.firestore.FieldValue.serverTimestamp()
+      : new Date(),
     timestampStr: new Date().toISOString()
   }).catch(() => {});
+
+  // Update summary stats counter untuk Admin Dashboard
+  if (typeof firebase !== 'undefined' && firebase.firestore && firebase.firestore.FieldValue) {
+    db.collection('stats').doc('summary').set({
+      waClicks: firebase.firestore.FieldValue.increment(1),
+      lastWaClickAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true }).catch(() => {});
+  }
+}
+
+// Catat kunjungan pengunjung ke Firebase untuk statistik Admin Dashboard
+function recordLandingPageVisitor() {
+  if (!db) return;
+  try {
+    const sessionKey = 'kopia_visitor_session_tracked';
+    if (!sessionStorage.getItem(sessionKey)) {
+      sessionStorage.setItem(sessionKey, '1');
+      if (typeof firebase !== 'undefined' && firebase.firestore && firebase.firestore.FieldValue) {
+        db.collection('stats').doc('summary').set({
+          totalVisitors: firebase.firestore.FieldValue.increment(1),
+          lastVisitedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true }).catch(() => {});
+      }
+    }
+  } catch (e) {}
 }
 
 // Smart Order Memory: Simpan data pemesanan terstruktur secara persisten ke koleksi 'orders' di Cloud Firestore
