@@ -1,21 +1,27 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Produk_lokal by kopia - Etalase Promo Langsung Dari Produsen & UMKM Asli</title>
-  <meta name="description" content="Temukan kurasi brand lokal dan karya UMKM terbaik Nusantara di Produk_lokal by kopia dengan harga promo tangan pertama tanpa biaya perantara. Hubungi penjual langsung via WhatsApp atau belanja di toko resmi — bebas proses rumit, bisa COD, dan 0% saldo tertahan.">
-  <meta name="keywords" content="produk lokal, produk lokal by kopia, promo produk lokal, umkm indonesia, belanja COD, direct commerce, diskon brand lokal, kopi gayo, kriya lokal, tangan pertama produsen">
-  
+  <meta name="description"
+    content="Temukan kurasi brand lokal dan karya UMKM terbaik Nusantara di Produk_lokal by kopia dengan harga promo tangan pertama tanpa biaya perantara. Hubungi penjual langsung via WhatsApp atau belanja di toko resmi — bebas proses rumit, bisa COD, dan 0% saldo tertahan.">
+  <meta name="keywords"
+    content="produk lokal, produk lokal by kopia, promo produk lokal, umkm indonesia, belanja COD, direct commerce, diskon brand lokal, kopi gayo, kriya lokal, tangan pertama produsen">
+
   <!-- Open Graph / Meta -->
   <meta property="og:title" content="Produk_lokal by kopia - Promo Produk Lokal Tangan Pertama Tanpa Markup">
-  <meta property="og:description" content="Promo produk lokal pilihan kurasi eksklusif Produk_lokal by kopia. Chat langsung ke WhatsApp produsen atau checkout di toko resmi — hemat maksimal, bisa bayar di tempat (COD), dan tanpa saldo tertahan!">
+  <meta property="og:description"
+    content="Promo produk lokal pilihan kurasi eksklusif Produk_lokal by kopia. Chat langsung ke WhatsApp produsen atau checkout di toko resmi — hemat maksimal, bisa bayar di tempat (COD), dan tanpa saldo tertahan!">
   <meta property="og:type" content="website">
 
   <!-- Google Fonts & Material Symbols -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
+    rel="stylesheet">
 
   <!-- Favicon (SVG) -->
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
@@ -32,7 +38,184 @@
   <!-- Main Application Script (Defer) -->
   <script src="app.js" defer></script>
 </head>
+
 <body>
+
+  <!-- ===================================================================
+       SIDEBAR NAVIGATION DRAWER (SESUAI TAMPILAN HEADER & SUBNAV SCREENSHOT)
+       =================================================================== -->
+  <div class="nav-drawer-overlay" id="navDrawerOverlay" onclick="handleNavDrawerOverlayClick(event)">
+    <aside class="nav-drawer" id="navDrawer" role="dialog" aria-modal="true" aria-labelledby="navDrawerBrandTitle">
+      
+      <!-- 1. Drawer Header: Logo & Close Button -->
+      <div class="nav-drawer-header">
+        <div class="nav-drawer-brand">
+          <div class="brand-icon">
+            <span class="material-symbols-outlined" style="font-size:22px;">local_mall</span>
+          </div>
+          <div class="brand-text">
+            <span class="brand-name" id="navDrawerBrandTitle">Produk_lokal <span class="brand-by-tag">by kopia</span></span>
+            <span class="brand-sub">Etalase Promo Langsung Dari Seller</span>
+          </div>
+        </div>
+        <button type="button" class="btn-drawer-close" onclick="closeNavDrawer()" aria-label="Tutup Menu">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <!-- 2. Drawer Search Box (Matching Screenshot Search Bar) -->
+      <div class="nav-drawer-search-wrap">
+        <div class="nav-drawer-search">
+          <span class="material-symbols-outlined search-icon">search</span>
+          <input type="text" id="drawerSearchInput" placeholder="Cari kopi, fashion lokal, skincare..."
+            onkeypress="if(event.key==='Enter') triggerDrawerSearch()">
+          <button type="button" class="btn-search-submit" onclick="triggerDrawerSearch()">Cari</button>
+        </div>
+      </div>
+
+      <!-- 3. Drawer Scrollable Body -->
+      <div class="nav-drawer-body">
+        
+        <!-- Action Buttons Section (Tombol Aksi Sesuai Screenshot) -->
+        <div class="drawer-section">
+          <span class="drawer-section-label">Aksi &amp; Menu Utama</span>
+          <div class="drawer-actions-grid">
+            <!-- Bantuan CS (Mint Green) -->
+            <a href="https://wa.me/6285771624349?text=Halo%20Tim%20CS%20Produk_lokal%20by%20kopia,%20saya%20butuh%20bantuan."
+              target="_blank" rel="noopener noreferrer" class="drawer-btn drawer-btn-cs" onclick="closeNavDrawer()">
+              <span class="material-symbols-outlined">support_agent</span>
+              <span>Bantuan CS</span>
+            </a>
+
+            <!-- Keranjang Belanja -->
+            <button type="button" class="drawer-btn drawer-btn-cart" onclick="closeNavDrawer(); openCartModal();">
+              <span class="material-symbols-outlined" style="color:var(--primary);">shopping_cart</span>
+              <span>Keranjang</span>
+              <span class="drawer-badge-count" id="drawerCartBadgeCount" style="display:none;">0</span>
+            </button>
+
+            <!-- Draf Invoice (Jika ada pesanan tersimpan) -->
+            <button type="button" class="drawer-btn drawer-btn-invoice" id="drawerBtnInvoice" onclick="closeNavDrawer(); openOrderInvoiceModal();" style="display:none;">
+              <span class="material-symbols-outlined" style="color:var(--tertiary-emerald);">receipt_long</span>
+              <span>Draf Invoice</span>
+              <span class="invoice-pulse-dot" style="margin-left:auto;"></span>
+            </button>
+
+            <!-- Notifikasi Promo -->
+            <button type="button" class="drawer-btn drawer-btn-notif" onclick="closeNavDrawer(); showToast('Kamu memiliki 3 rekomendasi produk lokal flash sale baru!');">
+              <span class="material-symbols-outlined">notifications</span>
+              <span>Notifikasi</span>
+              <span class="drawer-notif-dot"></span>
+            </button>
+
+            <!-- Dashboard Seller (Light Purple) -->
+            <button type="button" class="drawer-btn drawer-btn-dashboard" onclick="closeNavDrawer(); openSellerDashboardModal();">
+              <span class="material-symbols-outlined" style="color:var(--primary);">monitoring</span>
+              <span>Dashboard Seller 📊</span>
+            </button>
+
+            <!-- Pasang Produk Baru (Orange CTA Prominent) -->
+            <button type="button" class="drawer-btn drawer-btn-cta-ad" onclick="closeNavDrawer(); openSellerAdModal('Pro');">
+              <span class="material-symbols-outlined">add_circle</span>
+              <span>Pasang Produk Baru</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Sub-Navigation Links Section (Sesuai Subnav Bar di Screenshot) -->
+        <div class="drawer-section">
+          <span class="drawer-section-label">Jelajahi Etalase &amp; Halaman</span>
+          <nav class="drawer-nav-list">
+            <a href="#hero" class="drawer-nav-item active" onclick="closeNavDrawer()">
+              <div class="drawer-nav-item-left">
+                <span class="material-symbols-outlined">home</span>
+                <span>Semua Produk Lokal</span>
+              </div>
+              <span class="drawer-nav-pill-active">Aktif</span>
+            </a>
+
+            <a href="#flashSaleSection" class="drawer-nav-item" onclick="closeNavDrawer()">
+              <div class="drawer-nav-item-left">
+                <span class="material-symbols-outlined" style="color:#f59e0b;">flash_on</span>
+                <span>Flash Sale Kilat ⚡</span>
+              </div>
+              <span class="material-symbols-outlined nav-arrow">chevron_right</span>
+            </a>
+
+            <a href="#categoriesSection" class="drawer-nav-item" onclick="closeNavDrawer()">
+              <div class="drawer-nav-item-left">
+                <span class="material-symbols-outlined">category</span>
+                <span>Kategori Populer</span>
+              </div>
+              <span class="material-symbols-outlined nav-arrow">chevron_right</span>
+            </a>
+
+            <a href="#etalaseSection" class="drawer-nav-item" onclick="closeNavDrawer()">
+              <div class="drawer-nav-item-left">
+                <span class="material-symbols-outlined">storefront</span>
+                <span>Etalase Terverifikasi</span>
+              </div>
+              <span class="material-symbols-outlined nav-arrow">chevron_right</span>
+            </a>
+
+            <a href="#kurasiSection" class="drawer-nav-item" onclick="closeNavDrawer()">
+              <div class="drawer-nav-item-left">
+                <span class="material-symbols-outlined" style="color:#0284c7;">verified_user</span>
+                <span>Standar Kurasi Kopia 🛡️</span>
+              </div>
+              <span class="material-symbols-outlined nav-arrow">chevron_right</span>
+            </a>
+
+            <a href="#howItWorksSection" class="drawer-nav-item" onclick="closeNavDrawer()">
+              <div class="drawer-nav-item-left">
+                <span class="material-symbols-outlined">menu_book</span>
+                <span>Panduan Belanja</span>
+              </div>
+              <span class="material-symbols-outlined nav-arrow">chevron_right</span>
+            </a>
+
+            <a href="#pricingSection" class="drawer-nav-item" onclick="closeNavDrawer()">
+              <div class="drawer-nav-item-left">
+                <span class="material-symbols-outlined">sell</span>
+                <span>Paket Seller</span>
+              </div>
+              <span class="material-symbols-outlined nav-arrow">chevron_right</span>
+            </a>
+
+            <a href="javascript:void(0)" class="drawer-nav-item" onclick="closeNavDrawer(); openSellerDashboardModal();">
+              <div class="drawer-nav-item-left">
+                <span class="material-symbols-outlined" style="color:var(--primary);">query_stats</span>
+                <span>Dashboard Seller 📊</span>
+              </div>
+              <span class="material-symbols-outlined nav-arrow">chevron_right</span>
+            </a>
+
+            <a href="#faqSection" class="drawer-nav-item" onclick="closeNavDrawer()">
+              <div class="drawer-nav-item-left">
+                <span class="material-symbols-outlined">help_center</span>
+                <span>FAQ &amp; Pertanyaan Umum</span>
+              </div>
+              <span class="material-symbols-outlined nav-arrow">chevron_right</span>
+            </a>
+          </nav>
+        </div>
+
+      </div>
+
+      <!-- 4. Drawer Footer: Jaminan Layanan Kopia (Sesuai Subnav Perks di Screenshot) -->
+      <div class="nav-drawer-footer">
+        <div class="drawer-footer-perk">
+          <span class="material-symbols-outlined" style="color:var(--whatsapp-green);">verified</span>
+          <span>Chat Langsung Penjual (Bebas Potongan / 0% Fee)</span>
+        </div>
+        <div class="drawer-footer-perk">
+          <span class="material-symbols-outlined" style="color:var(--tertiary-emerald);">account_balance</span>
+          <span>Pembayaran Transfer Bank Resmi</span>
+        </div>
+      </div>
+
+    </aside>
+  </div>
 
   <!-- ===================================================================
        1. TOP NAVIGATION BAR (HEADER)
@@ -40,36 +223,62 @@
   <header class="site-header">
     <div class="container">
       <div class="header-top">
-        <!-- Logo: Produk_lokal by kopia -->
-        <a href="#hero" class="brand-logo" id="headerLogoLink" aria-label="Produk_lokal by kopia">
-          <div class="brand-icon">
-            <span class="material-symbols-outlined text-[24px]">local_mall</span>
-          </div>
-          <div class="brand-text">
-            <span class="brand-name">Produk_lokal <span class="brand-by-tag">by kopia</span></span>
-            <span class="brand-sub">Etalase Promo Langsung Dari Seller</span>
-          </div>
-        </a>
+        <div class="brand-group" style="display:flex; align-items:center; gap:8px;">
+          <!-- Drawer Hamburger Toggle Button -->
+          <button type="button" class="btn-drawer-hamburger" id="btnDrawerHamburger" onclick="openNavDrawer()" aria-label="Buka Menu Drawer" title="Buka Menu Navigasi Lengkap">
+            <span class="material-symbols-outlined">menu</span>
+          </button>
+
+          <!-- Logo: Produk_lokal by kopia -->
+          <a href="#hero" class="brand-logo" id="headerLogoLink" aria-label="Produk_lokal by kopia">
+            <div class="brand-icon">
+              <span class="material-symbols-outlined text-[24px]">local_mall</span>
+            </div>
+            <div class="brand-text">
+              <span class="brand-name">Produk_lokal <span class="brand-by-tag">by kopia</span></span>
+              <span class="brand-sub">Etalase Promo Langsung Dari Seller</span>
+            </div>
+          </a>
+        </div>
 
         <!-- Search Bar (Bagian Atas - Header) -->
         <div class="header-search">
           <span class="material-symbols-outlined search-icon">search</span>
-          <input type="text" id="headerSearchInput" placeholder="Cari kopi nusantara, fashion lokal, skincare herbal..." onkeypress="if(event.key==='Enter') triggerSearch('header')">
+          <input type="text" id="headerSearchInput" placeholder="Cari kopi nusantara, fashion lokal, skincare herbal..."
+            onkeypress="if(event.key==='Enter') triggerSearch('header')">
           <button type="button" class="btn-search-submit" onclick="triggerSearch('header')">Cari</button>
         </div>
 
         <!-- Header Actions -->
         <div class="header-actions">
-          <a href="https://wa.me/6285771624349?text=Halo%20Tim%20CS%20Produk_lokal%20by%20kopia,%20saya%20butuh%20bantuan." target="_blank" class="btn-header-cs">
+          <a href="https://wa.me/6285771624349?text=Halo%20Tim%20CS%20Produk_lokal%20by%20kopia,%20saya%20butuh%20bantuan."
+            target="_blank" class="btn-header-cs">
             <span class="material-symbols-outlined" style="color:var(--whatsapp-green);">support_agent</span>
             <span>Bantuan CS</span>
           </a>
-          <button type="button" class="btn-notif" aria-label="Notifikasi Promo" onclick="showToast('Kamu memiliki 3 rekomendasi produk lokal flash sale baru!')">
+
+          <!-- Keranjang Belanja Button -->
+          <button type="button" class="btn-header-cart" id="btnHeaderCart" onclick="openCartModal()" aria-label="Keranjang Belanja" title="Lihat Keranjang Belanja">
+            <span class="material-symbols-outlined" style="font-size:20px; color:var(--primary);">shopping_cart</span>
+            <span class="btn-cart-text">Keranjang</span>
+            <span class="cart-badge-count" id="cartBadgeCount" style="display:none;">0</span>
+          </button>
+
+          <!-- Invoice Pesanan Terakhir Button (Aktif saat user buka web lagi jika ada pesanan tersimpan) -->
+          <button type="button" class="btn-header-invoice" id="btnHeaderInvoice" onclick="openOrderInvoiceModal()" aria-label="Invoice Pesanan" title="Lihat Draf Invoice Pesanan Terakhir" style="display:none;">
+            <span class="material-symbols-outlined" style="font-size:18px; color:var(--tertiary-emerald);">receipt_long</span>
+            <span class="btn-invoice-text">Draf Invoice</span>
+            <span class="invoice-pulse-dot"></span>
+          </button>
+
+          <button type="button" class="btn-notif" aria-label="Notifikasi Promo"
+            onclick="showToast('Kamu memiliki 3 rekomendasi produk lokal flash sale baru!')">
             <span class="material-symbols-outlined">notifications</span>
             <span class="notif-badge"></span>
           </button>
           <!-- Dashboard Seller Button -->
-          <button type="button" class="btn-header-dashboard" id="btnHeaderDashboard" onclick="openSellerDashboardModal()" aria-label="Dashboard Seller" title="Buka Dashboard Seller">
+          <button type="button" class="btn-header-dashboard" id="btnHeaderDashboard"
+            onclick="openSellerDashboardModal()" aria-label="Dashboard Seller" title="Buka Dashboard Seller">
             <span class="material-symbols-outlined" style="font-size:18px; color:var(--primary);">monitoring</span>
             <span class="btn-dashboard-text">Dashboard Seller</span>
           </button>
@@ -77,8 +286,9 @@
             <span class="material-symbols-outlined" style="font-size:18px;">add_circle</span>
             <span>Pasang Produk Baru</span>
           </button>
-          <button type="button" class="btn-menu-mobile" aria-label="Buka Menu Navigasi" onclick="openSellerDashboardModal()">
-            <span class="material-symbols-outlined">analytics</span>
+          <button type="button" class="btn-menu-mobile" id="btnMenuMobile" aria-label="Buka Menu Navigasi"
+            onclick="openNavDrawer()">
+            <span class="material-symbols-outlined">menu</span>
           </button>
         </div>
       </div>
@@ -93,11 +303,12 @@
           <a href="#categoriesSection" class="subnav-link">Kategori Populer</a>
           <a href="#etalaseSection" class="subnav-link">Etalase Terverifikasi</a>
           <a href="#kurasiSection" class="subnav-link">Standar Kurasi Kopia 🛡️</a>
-          <a href="#mockupSection" class="subnav-link">Pratinjau Halaman Iklan</a>
-          <a href="#howItWorksSection" class="subnav-link">Alur Pembeli</a>
+          <a href="#howItWorksSection" class="subnav-link">Panduan Belanja</a>
           <a href="#pricingSection" class="subnav-link">Paket Seller</a>
-          <a href="javascript:void(0)" class="subnav-link subnav-dashboard-highlight" onclick="openSellerDashboardModal()">
-            <span class="material-symbols-outlined" style="font-size:15px; vertical-align:middle; margin-right:2px; color:var(--primary);">monitoring</span>
+          <a href="javascript:void(0)" class="subnav-link subnav-dashboard-highlight"
+            onclick="openSellerDashboardModal()">
+            <span class="material-symbols-outlined"
+              style="font-size:15px; vertical-align:middle; margin-right:2px; color:var(--primary);">monitoring</span>
             <span>Dashboard Seller 📊</span>
           </a>
           <a href="#faqSection" class="subnav-link">FAQ</a>
@@ -109,8 +320,8 @@
           </span>
           <span style="color:var(--border-strong);">•</span>
           <span class="subnav-perk-item">
-            <span class="material-symbols-outlined" style="color:var(--tertiary-emerald);">payments</span>
-            <span>Bisa Bayar di Tempat (COD)</span>
+            <span class="material-symbols-outlined" style="color:var(--tertiary-emerald);">account_balance</span>
+            <span>Pembayaran Transfer Bank</span>
           </span>
         </div>
       </div>
@@ -131,25 +342,30 @@
           <!-- Tagline Pill -->
           <div class="hero-badge-pill">
             <span class="pulse-dot"></span>
-            <span class="badge-text-primary">Kurasi Eksklusif Produk_lokal by kopia</span>
+            <span class="badge-text-primary">Jam Operasional: 09.00 - 17.00 WIB</span>
             <span class="badge-divider">•</span>
-            <span class="badge-text-counter">1.840 Promo Aktif Hari Ini</span>
+            <span class="badge-text-counter">Produk_lokal by kopia</span>
           </div>
 
           <!-- Headline -->
           <h1 class="hero-title">
-            Promo Produk Lokal Pilihan, Langsung Hemat Dari <span class="text-gradient">Tangan Pertama Produsen Asli</span>
+            Promo Produk Lokal Pilihan, Langsung Hemat Dari <span class="text-gradient">Tangan Pertama Produsen
+              Asli</span>
           </h1>
 
           <!-- Subheadline -->
           <p class="hero-description">
-            Dapatkan harga promo langsung dari produsen lokal &amp; UMKM pilihan se-Indonesia tanpa markup perantara di <strong>Produk_lokal by kopia</strong>. Chat langsung ke WhatsApp penjual dengan draf pesan otomatis atau belanja di official store resmi — bebas proses checkout rumit, bisa bayar di tempat (COD), dan 0% saldo tertahan!
+            Dapatkan harga promo langsung dari produsen lokal &amp; UMKM pilihan se-Indonesia tanpa markup perantara di
+            <strong>Produk_lokal by kopia</strong>. Chat langsung ke WhatsApp penjual dengan draf pesan otomatis atau
+            belanja di official store resmi, bebas proses checkout rumit, langsung transfer, dan 0% saldo tertahan!
           </p>
 
           <!-- Search Box (Bagian Atas - Hero) -->
           <div class="hero-search-box">
             <span class="material-symbols-outlined hero-search-icon">search</span>
-            <input type="text" id="heroSearchInput" placeholder="Cari kopi gayo, kemeja linen, serum lokal, madu, dompet kulit..." onkeypress="if(event.key==='Enter') triggerSearch('hero')">
+            <input type="text" id="heroSearchInput"
+              placeholder="Cari kopi gayo, kemeja linen, serum lokal, madu, dompet kulit..."
+              onkeypress="if(event.key==='Enter') triggerSearch('hero')">
             <button type="button" class="btn-hero-search" onclick="triggerSearch('hero')">
               <span>Temukan</span>
               <span class="material-symbols-outlined" style="font-size:18px;">bolt</span>
@@ -163,7 +379,8 @@
               <div>
                 <span class="banner-badge-mini">Kurasi Kopia</span>
                 <h2 class="banner-title">Diskon s/d 70% Brand Lokal & Pengrajin Asli</h2>
-                <p class="banner-desc">Akses penawaran produk asli langsung dari produsen & toko UMKM terverifikasi se-Nusantara.</p>
+                <p class="banner-desc">Akses penawaran produk asli langsung dari produsen & toko UMKM terverifikasi
+                  se-Nusantara.</p>
               </div>
               <div class="banner-footer">
                 <a href="#etalaseSection" class="banner-action-link">Jelajahi Produk →</a>
@@ -178,7 +395,8 @@
               <div>
                 <span class="banner-badge-mini">Kepercayaan Pembeli</span>
                 <h2 class="banner-title">Garansi Resmi 100% Produk Original</h2>
-                <p class="banner-desc">Seller wajib validasi nomor izin edar, foto real produk & jaminan retur barang rusak ganti baru.</p>
+                <p class="banner-desc">Seller wajib validasi nomor izin edar, foto real produk & jaminan retur barang
+                  rusak ganti baru.</p>
               </div>
               <div class="banner-footer">
                 <a href="#whyUsSection" class="banner-action-link">Cek Standar Mutu →</a>
@@ -193,7 +411,8 @@
               <div>
                 <span class="banner-badge-mini">Hemat Maksimal</span>
                 <h2 class="banner-title">0% Tambahan Biaya Admin & Fee Platform</h2>
-                <p class="banner-desc">Harga murni kesepakatan toko tanpa markup sepihak. Selisih hemat dinikmati langsung oleh pembeli!</p>
+                <p class="banner-desc">Harga murni kesepakatan toko tanpa markup sepihak. Selisih hemat dinikmati
+                  langsung oleh pembeli!</p>
               </div>
               <div class="banner-footer">
                 <a href="#howItWorksSection" class="banner-action-link">Pelajari Manfaat →</a>
@@ -219,7 +438,9 @@
             <div>
               <div style="display:flex; align-items:center; gap:8px;">
                 <h2 class="flash-title">Flash Sale Kilat</h2>
-                <span style="background:var(--secondary-light); color:var(--secondary); font-size:11.5px; font-weight:800; padding:2px 8px; border-radius:4px;">Diskon Terbatas</span>
+                <span
+                  style="background:var(--secondary-light); color:var(--secondary); font-size:11.5px; font-weight:800; padding:2px 8px; border-radius:4px;">Diskon
+                  Terbatas</span>
               </div>
               <p class="flash-subtitle">Rebutan stok diskon tinggi langsung dari supplier pabrik terverifikasi.</p>
             </div>
@@ -325,10 +546,12 @@
               <span>Lolos Kurasi Kualitas Produk_lokal by kopia</span>
             </div>
             <h2 class="section-title">Etalase Promo Produk Lokal Pilihan</h2>
-            <p class="section-subtitle">Semua transaksi langsung diarahkan ke kontak WhatsApp resmi toko atau marketplace resmi tanpa biaya komisi tersembunyi.</p>
+            <p class="section-subtitle">Semua transaksi langsung diarahkan ke kontak WhatsApp resmi toko atau
+              marketplace resmi tanpa biaya komisi tersembunyi.</p>
           </div>
           <div style="text-align:right;">
-            <span id="catalogDisplayCount" style="font-size:13.5px; color:var(--text-muted);">Menampilkan produk promo lokal aktif</span>
+            <span id="catalogDisplayCount" style="font-size:13.5px; color:var(--text-muted);">Menampilkan produk promo
+              lokal aktif</span>
           </div>
         </div>
 
@@ -337,8 +560,11 @@
           <!-- In-Page Catalog Search ("bagian bawah") -->
           <div class="catalog-search-inline">
             <span class="material-symbols-outlined catalog-search-icon">search</span>
-            <input type="text" id="catalogSearchInput" placeholder="Cari di etalase produk lokal (kopi, linen, serum, kriya)..." onkeypress="if(event.key==='Enter') triggerSearch('catalog')">
-            <button type="button" class="btn-catalog-search-clear" id="btnCatalogSearchClear" onclick="clearCatalogSearch()" style="display:none;" title="Hapus pencarian">
+            <input type="text" id="catalogSearchInput"
+              placeholder="Cari di etalase produk lokal (kopi, linen, serum, kriya)..."
+              onkeypress="if(event.key==='Enter') triggerSearch('catalog')">
+            <button type="button" class="btn-catalog-search-clear" id="btnCatalogSearchClear"
+              onclick="clearCatalogSearch()" style="display:none;" title="Hapus pencarian">
               <span class="material-symbols-outlined" style="font-size:16px;">close</span>
             </button>
             <button type="button" class="btn-catalog-search" onclick="triggerSearch('catalog')">
@@ -351,11 +577,13 @@
               <span class="material-symbols-outlined" style="color:var(--whatsapp-green);">payments</span>
               <span>Bisa COD</span>
             </button>
-            <button type="button" class="filter-pill-btn" data-filter="freeShipping" onclick="togglePillFilter(this, 'freeShipping')">
+            <button type="button" class="filter-pill-btn" data-filter="freeShipping"
+              onclick="togglePillFilter(this, 'freeShipping')">
               <span class="material-symbols-outlined" style="color:var(--primary);">local_shipping</span>
               <span>Gratis Ongkir</span>
             </button>
-            <button type="button" class="filter-pill-btn active" data-filter="verified" onclick="togglePillFilter(this, 'verified')">
+            <button type="button" class="filter-pill-btn active" data-filter="verified"
+              onclick="togglePillFilter(this, 'verified')">
               <span class="material-symbols-outlined">verified</span>
               <span>Toko Terverifikasi</span>
             </button>
@@ -395,12 +623,14 @@
       <div class="container">
         <div style="text-align:center; max-width:760px; margin:0 auto var(--space-2xl);">
           <div class="section-pretitle" style="justify-content:center;">
-            <span class="material-symbols-outlined" style="font-size:17px; color:var(--tertiary-emerald);">verified_user</span>
+            <span class="material-symbols-outlined"
+              style="font-size:17px; color:var(--tertiary-emerald);">verified_user</span>
             <span>Jaminan Transaksi & Kualitas Pilihan</span>
           </div>
           <h2 class="section-title">4 Pilar Standar Kurasi Produk_lokal by kopia</h2>
           <p class="section-subtitle" style="margin:8px auto 0;">
-            Kami menyeleksi setiap produk UMKM dan brand lokal dengan standar mutu ketat, memastikan calon pembeli mendapatkan produk bermutu tinggi dan bebas rasa was-was.
+            Kami menyeleksi setiap produk UMKM dan brand lokal dengan standar mutu ketat, memastikan calon pembeli
+            mendapatkan produk bermutu tinggi dan bebas rasa was-was.
           </p>
         </div>
 
@@ -413,7 +643,8 @@
             <span class="kurasi-badge">Pilar 01</span>
             <h3 class="kurasi-title">100% Karya & Bahan Lokal Asli</h3>
             <p class="kurasi-desc">
-              Hanya menerima produk yang diproduksi oleh pengrajin, petani kopi, UMKM, dan brand independen Indonesia. Bebas barang tiruan/KW impor murahan.
+              Hanya menerima produk yang diproduksi oleh pengrajin, petani kopi, UMKM, dan brand independen Indonesia.
+              Bebas barang tiruan/KW impor murahan.
             </p>
             <div class="kurasi-footer-perk">
               <span class="material-symbols-outlined">check_circle</span>
@@ -429,7 +660,8 @@
             <span class="kurasi-badge">Pilar 02</span>
             <h3 class="kurasi-title">Validasi Izin & Standar Legalitas</h3>
             <p class="kurasi-desc">
-              Untuk kategori pangan/kopi wajib mengantongi izin P-IRT/Halal, dan produk perawatan kulit wajib terdaftar resmi di BPOM RI dengan nomor registrasi aktif.
+              Untuk kategori pangan/kopi wajib mengantongi izin P-IRT/Halal, dan produk perawatan kulit wajib terdaftar
+              resmi di BPOM RI dengan nomor registrasi aktif.
             </p>
             <div class="kurasi-footer-perk">
               <span class="material-symbols-outlined">check_circle</span>
@@ -445,7 +677,8 @@
             <span class="kurasi-badge">Pilar 03</span>
             <h3 class="kurasi-title">Garansi Retur Barang Rusak</h3>
             <p class="kurasi-desc">
-              Setiap seller terikat komitmen mengganti unit baru secara gratis jika paket yang diterima pembeli mengalami kerusakan, cacat produksi, atau salah varian.
+              Setiap seller terikat komitmen mengganti unit baru secara gratis jika paket yang diterima pembeli
+              mengalami kerusakan, cacat produksi, atau salah varian.
             </p>
             <div class="kurasi-footer-perk">
               <span class="material-symbols-outlined">check_circle</span>
@@ -461,7 +694,8 @@
             <span class="kurasi-badge">Pilar 04</span>
             <h3 class="kurasi-title">Respon Kilat WA & Opsi COD</h3>
             <p class="kurasi-desc">
-              Admin toko wajib membalas chat calon pembeli dengan cepat (rata-rata respon di bawah 15 menit) dan siap melayani pengiriman Bayar di Tempat (COD).
+              Admin toko wajib membalas chat calon pembeli dengan cepat (rata-rata respon di bawah 15 menit) dan siap
+              melayani pengiriman Bayar di Tempat (COD).
             </p>
             <div class="kurasi-footer-perk">
               <span class="material-symbols-outlined">check_circle</span>
@@ -472,132 +706,15 @@
       </div>
     </section>
 
-    <!-- SECTION 5: PRATINJAU INTERAKTIF LANDING PAGE MOCKUP -->
-    <section class="mockup-preview-section" id="mockupSection">
-      <div class="container">
-        <div class="mockup-layout">
-          <!-- Left: Copy & Explanations for Sellers -->
-          <div class="mockup-text-side">
-            <span class="section-pretitle">Pratinjau Hasil Halaman Iklan</span>
-            <h2 class="section-title">Halaman Promosi Instan yang Memikat Pembeli</h2>
-            <p class="section-subtitle" style="margin-top:8px;">
-              Lihat bagaimana iklan produk Anda ditampilkan secara profesional di layar ponsel calon pembeli. Cepat dimuat, persuasif, dan langsung mengarahkan transaksi ke nomor WhatsApp Anda.
-            </p>
-
-            <div class="mockup-feature-list">
-              <div class="mockup-feature-item">
-                <div class="feature-check-icon">
-                  <span class="material-symbols-outlined">flash_on</span>
-                </div>
-                <div>
-                  <h4 class="feature-item-title">Kecepatan Loading Kurang dari 1 Detik</h4>
-                  <p class="feature-item-desc">Dioptimalkan khusus untuk koneksi internet seluler di seluruh pelosok Indonesia tanpa lemot.</p>
-                </div>
-              </div>
-
-              <div class="mockup-feature-item">
-                <div class="feature-check-icon">
-                  <span class="material-symbols-outlined">chat</span>
-                </div>
-                <div>
-                  <h4 class="feature-item-title">Tombol WhatsApp Sticky Selalu Terlihat</h4>
-                  <p class="feature-item-desc">Memudahkan pembeli bertanya atau order tanpa harus mencari-cari nomor kontak Anda.</p>
-                </div>
-              </div>
-
-              <div class="mockup-feature-item">
-                <div class="feature-check-icon">
-                  <span class="material-symbols-outlined">verified</span>
-                </div>
-                <div>
-                  <h4 class="feature-item-title">Elemen Kepercayaan & Ulasan Pembeli</h4>
-                  <p class="feature-item-desc">Poin garansi, opsi COD, dan ulasan terverifikasi terpasang otomatis untuk mendongkrak konversi.</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Switcher Buttons -->
-            <div style="margin-top:10px;">
-              <span style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; display:block; margin-bottom:8px;">Coba Ganti Contoh Produk:</span>
-              <div class="mockup-switcher">
-                <button type="button" class="btn-switch-mockup active" onclick="switchMockupItem(0, this)">Kopi Arabika Gayo</button>
-                <button type="button" class="btn-switch-mockup" onclick="switchMockupItem(1, this)">Kemeja Linen</button>
-                <button type="button" class="btn-switch-mockup" onclick="switchMockupItem(2, this)">Serum Glowing</button>
-                <button type="button" class="btn-switch-mockup" onclick="switchMockupItem(3, this)">Grinder Kopi</button>
-              </div>
-            </div>
-
-            <div style="margin-top:24px;">
-              <button type="button" class="btn-cta-ad" style="padding:12px 24px; font-size:14px;" onclick="openSellerAdModal('Pro')">
-                <span>Pasang Produk Lokal Saya Sekarang</span>
-                <span class="material-symbols-outlined" style="font-size:18px;">arrow_forward</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Right: Interactive Smartphone Frame -->
-          <div>
-            <div class="smartphone-device-frame">
-              <div class="smartphone-speaker"></div>
-              <div class="smartphone-screen">
-                <div class="mockup-screen-scroll">
-                  <!-- Product Image Gallery Simulation -->
-                  <div class="mockup-img-wrap">
-                    <img id="mockupImg" src="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=700&q=80" alt="Preview Mockup Kopi Gayo">
-                    <span class="mockup-live-badge">● TAYANG DI ETALASE</span>
-                  </div>
-
-                  <!-- Ratings -->
-                  <div class="mockup-rating-row" id="mockupRating">
-                    <span class="material-symbols-outlined fill-icon" style="font-size:16px;">star</span>
-                    <span>5.0 (184 Ulasan Terverifikasi)</span>
-                  </div>
-
-                  <!-- Title -->
-                  <h3 class="mockup-product-title" id="mockupTitle">Kopi Arabika Gayo Single Origin 250g</h3>
-
-                  <!-- Price -->
-                  <div class="mockup-price-box">
-                    <span class="mockup-price-now" id="mockupPriceNow">Rp 89.000</span>
-                    <span class="mockup-price-was" id="mockupPriceWas">Rp 165.000</span>
-                    <span style="font-size:11px; font-weight:800; color:var(--secondary); margin-left:auto;">(Hemat 46%)</span>
-                  </div>
-
-                  <!-- USP Points -->
-                  <ul class="mockup-usp-list" id="mockupUspList">
-                    <li><span class="material-symbols-outlined">check_circle</span> Kurasi Kopia Kualitas Eksklusif</li>
-                    <li><span class="material-symbols-outlined">check_circle</span> Gratis Ongkir Seluruh Indonesia</li>
-                    <li><span class="material-symbols-outlined">check_circle</span> Siap Kirim Hari Ini (Bisa COD)</li>
-                  </ul>
-
-                  <!-- Description -->
-                  <p class="mockup-desc-p">
-                    Biji kopi pilihan varietas Typica dan Bourbon dari dataran tinggi Gayo. Diproses wash secara teliti dan di-roast medium profil untuk mengeluarkan aroma karamel dan cokelat bersih.
-                  </p>
-                </div>
-
-                <!-- Sticky Bottom Conversion Action on Mockup -->
-                <div class="mockup-sticky-actions">
-                  <button type="button" class="mockup-btn-wa" onclick="showToast('Simulasi: Mengarahkan pembeli langsung ke chat WhatsApp toko Anda!')">
-                    <span class="material-symbols-outlined">chat</span>
-                    <span>Chat Penjual via WhatsApp</span>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- SECTION 6: ALUR & CARA KERJA (DARI SUDUT PANDANG CALON PEMBELI) -->
+    <!-- SECTION 6: PANDUAN BELANJA & CARA PEMESANAN MUDAH -->
     <section class="how-it-works-section" id="howItWorksSection">
       <div class="container">
         <div style="text-align:center; max-width:760px; margin:0 auto;">
-          <span class="section-pretitle">Traffic & Conversion Funnel</span>
-          <h2 class="section-title">Alur Mudah Belanja Produk Lokal Tanpa Hambatan</h2>
+          <span class="section-pretitle">Panduan Belanja</span>
+          <h2 class="section-title">Cara Pemesanan Mudah</h2>
           <p class="section-subtitle" style="margin:8px auto 0;">
-            Dirancang khusus untuk kenyamanan calon pembeli: cepat menemukan promo, transparan, dan terhubung langsung ke pemilik toko tanpa saldo tertahan.
+            Dirancang khusus untuk kenyamanan calon pembeli: cepat menemukan promo, transparan, dan terhubung langsung
+            ke pemilik toko tanpa saldo tertahan.
           </p>
         </div>
 
@@ -607,7 +724,8 @@
             <span class="step-number">01</span>
             <span class="step-actor-pill">Traffic & Discovery</span>
             <h3 class="step-title">Landing Page / Etalase Utama</h3>
-            <p class="step-desc">Calon pembeli mengunjungi <strong>Produk_lokal by kopia</strong>, melihat katalog produk promo, diskon flash sale, dan filter kategori produk nusantara yang dicari.</p>
+            <p class="step-desc">Calon pembeli mengunjungi <strong>Produk_lokal by kopia</strong>, melihat katalog
+              produk promo, diskon flash sale, dan filter kategori produk nusantara yang dicari.</p>
           </div>
 
           <!-- Step 2 -->
@@ -615,7 +733,8 @@
             <span class="step-number">02</span>
             <span class="step-actor-pill">Ringkas & Transparan</span>
             <h3 class="step-title">Halaman Produk Cepat</h3>
-            <p class="step-desc">Saat calon pembeli mengklik salah satu produk, mereka langsung melihat halaman ringkas berisi foto tajam, harga promo/coret, poin garansi/COD, dan review pembeli asli.</p>
+            <p class="step-desc">Saat calon pembeli mengklik salah satu produk, mereka langsung melihat halaman ringkas
+              berisi foto tajam, harga promo/coret, poin garansi resmi, dan review pembeli asli.</p>
           </div>
 
           <!-- Step 3 -->
@@ -623,15 +742,17 @@
             <span class="step-number">03</span>
             <span class="step-actor-pill">Draf Pesan Otomatis</span>
             <h3 class="step-title">Chat WhatsApp Langsung</h3>
-            <p class="step-desc">Pembeli menekan tombol "Chat WhatsApp" yang otomatis membuka chat ke nomor admin toko dengan draf pesan siap kirim (nama produk, harga promo, tanya stok & opsi COD).</p>
+            <p class="step-desc">Pembeli menekan tombol "Chat WhatsApp" yang otomatis membuka chat ke nomor admin toko
+              dengan draf pesan siap kirim (nama produk, harga promo, tanya stok & info rekening transfer).</p>
           </div>
 
           <!-- Step 4 -->
           <div class="step-card">
             <span class="step-number">04</span>
-            <span class="step-actor-pill">0% Saldo Tertahan</span>
-            <h3 class="step-title">Beli Sekarang di Toko Resmi</h3>
-            <p class="step-desc">Pembeli dapat menekan "Beli Sekarang" ke marketplace/website resmi penjual atau deal COD langsung. Bebas proses checkout rumit dan <strong>tanpa saldo tertahan di platform</strong>.</p>
+            <span class="step-actor-pill">Transfer Pembayaran</span>
+            <h3 class="step-title">Barang Dikirim</h3>
+            <p class="step-desc">Selesaikan transfer pembayaran, admin memverifikasi, dan pesanan segera dikirim ke
+              alamat anda.</p>
           </div>
         </div>
       </div>
@@ -656,7 +777,8 @@
                 <span class="material-symbols-outlined">bolt</span>
               </div>
               <h3 class="why-title">⚡ Halaman Produk Instan & Cepat</h3>
-              <p class="why-desc">Detail produk dimuat dalam hitungan milidetik di smartphone pembeli dengan info harga diskon, garansi, dan review lengkap.</p>
+              <p class="why-desc">Detail produk dimuat dalam hitungan milidetik di smartphone pembeli dengan info harga
+                diskon, garansi, dan review lengkap.</p>
             </div>
             <span class="why-stat-highlight">Ringkas & Tanpa Lemot →</span>
           </div>
@@ -668,7 +790,8 @@
                 <span class="material-symbols-outlined">chat</span>
               </div>
               <h3 class="why-title">💬 Chat WhatsApp Otomatis</h3>
-              <p class="why-desc">Draf pesan pemesanan otomatis terisi rapi, menghubungkan pembeli langsung ke WhatsApp resmi pemilik toko.</p>
+              <p class="why-desc">Draf pesan pemesanan otomatis terisi rapi, menghubungkan pembeli langsung ke WhatsApp
+                resmi pemilik toko.</p>
             </div>
             <span class="why-stat-highlight">Respon Cepat dari Penjual →</span>
           </div>
@@ -680,7 +803,8 @@
                 <span class="material-symbols-outlined">payments</span>
               </div>
               <h3 class="why-title">💰 0% Biaya Platform & Bebas Saldo Tertahan</h3>
-              <p class="why-desc">Tidak ada markup biaya aplikasi atau saldo penjual yang ditahan. Transaksi transparan dan adil bagi penjual & pembeli.</p>
+              <p class="why-desc">Tidak ada markup biaya aplikasi atau saldo penjual yang ditahan. Transaksi transparan
+                dan adil bagi penjual & pembeli.</p>
             </div>
             <span class="why-stat-highlight">Bebas Potongan Komisi →</span>
           </div>
@@ -692,7 +816,8 @@
                 <span class="material-symbols-outlined">verified</span>
               </div>
               <h3 class="why-title">🛡️ Kurasi Kualitas by Kopia</h3>
-              <p class="why-desc">Produk lokal dan UMKM yang terdaftar melewati standar mutu terpercaya dengan opsi pengiriman bayar di tempat (COD).</p>
+              <p class="why-desc">Produk lokal dan UMKM yang terdaftar melewati standar mutu terpercaya dengan opsi
+                pengiriman bayar di tempat (COD).</p>
             </div>
             <span class="why-stat-highlight">100% Produk Lokal Asli →</span>
           </div>
@@ -707,7 +832,8 @@
           <span class="section-pretitle">Investasi Terukur</span>
           <h2 class="section-title">Paket & Biaya Pemasangan Iklan</h2>
           <p class="section-subtitle" style="margin:8px auto 0;">
-            Pilih paket yang paling pas dengan target kampanye produk Anda. Tanpa kontrak terikat dan tanpa biaya tersembunyi.
+            Pilih paket yang paling pas dengan target kampanye produk Anda. Tanpa kontrak terikat dan tanpa biaya
+            tersembunyi.
           </p>
         </div>
 
@@ -846,7 +972,8 @@
           <div>
             <span class="section-pretitle">Bukti Sosial Nyata</span>
             <h2 class="section-title">Apa Kata Mereka yang Sudah Menggunakan?</h2>
-            <p class="section-subtitle">Pengalaman asli dari para pemilik toko UMKM dan pembeli yang bertransaksi langsung.</p>
+            <p class="section-subtitle">Pengalaman asli dari para pemilik toko UMKM dan pembeli yang bertransaksi
+              langsung.</p>
           </div>
 
           <!-- Rating Badge Pill -->
@@ -859,7 +986,8 @@
             </div>
             <div>
               <div style="display:flex; align-items:center; gap:4px;">
-                <span class="material-symbols-outlined fill-icon" style="color:var(--promo-amber); font-size:18px;">star</span>
+                <span class="material-symbols-outlined fill-icon"
+                  style="color:var(--promo-amber); font-size:18px;">star</span>
                 <strong style="font-size:18px; color:var(--on-surface);">4.9 / 5.0</strong>
               </div>
               <span style="font-size:11.5px; color:var(--text-muted);">Dari 4.820+ Ulasan Transaksi</span>
@@ -879,7 +1007,9 @@
                 <span class="material-symbols-outlined fill-icon">star</span>
               </div>
               <p class="testimonial-quote">
-                “Biasanya ribet banget bikin landing page sendiri harus beli hosting dan domain. Di Produk_lokal by kopia tinggal input info produk, langsung jadi halaman promosi profesional. Klik calon pembeli ke WhatsApp kami melonjak 3x lipat!”
+                “Biasanya ribet banget bikin landing page sendiri harus beli hosting dan domain. Di Produk_lokal by
+                kopia tinggal input info produk, langsung jadi halaman promosi profesional. Klik calon pembeli ke
+                WhatsApp kami melonjak 3x lipat!”
               </p>
             </div>
             <div class="reviewer-meta">
@@ -902,11 +1032,14 @@
                 <span class="material-symbols-outlined fill-icon">star</span>
               </div>
               <p class="testimonial-quote">
-                “Biaya iklannya sangat masuk akal, dan yang paling mantap adalah tidak ada potongan fee komisi dari penjualan! Uang orderan dari pembeli 100% masuk ke rekening kami langsung. Sangat mendukung UMKM berkembang.”
+                “Biaya iklannya sangat masuk akal, dan yang paling mantap adalah tidak ada potongan fee komisi dari
+                penjualan! Uang orderan dari pembeli 100% masuk ke rekening kami langsung. Sangat mendukung UMKM
+                berkembang.”
               </p>
             </div>
             <div class="reviewer-meta">
-              <div class="reviewer-avatar" style="background:var(--secondary-fixed-dim); color:var(--secondary);">BP</div>
+              <div class="reviewer-avatar" style="background:var(--secondary-fixed-dim); color:var(--secondary);">BP
+              </div>
               <div>
                 <h4 class="reviewer-name">Budi P.</h4>
                 <span class="reviewer-detail">Owner TechGear Store • Gadget Supplier</span>
@@ -925,7 +1058,8 @@
                 <span class="material-symbols-outlined fill-icon">star</span>
               </div>
               <p class="testimonial-quote">
-                “Sebagai pembeli, saya senang karena bisa langsung WhatsApp ke pemilik toko untuk tanya stok real dan minta video barangnya. Terus pengirimannya bisa bayar di tempat (COD), jadi belanja online bebas cemas!”
+                “Sebagai pembeli, saya senang karena bisa langsung WhatsApp ke pemilik toko untuk tanya stok real dan
+                minta video barangnya. Terus pengirimannya bisa bayar di tempat (COD), jadi belanja online bebas cemas!”
               </p>
             </div>
             <div class="reviewer-meta">
@@ -960,7 +1094,9 @@
             </button>
             <div class="faq-answer-panel">
               <p class="faq-answer-text">
-                Tidak sama sekali! Anda cukup mengisi formulir nama produk, mengunggah foto, menentukan harga promo, dan memasukkan nomor WhatsApp toko Anda. Sistem kami secara otomatis membuatkan landing page produk yang elegan dan siap tayang.
+                Tidak sama sekali! Anda cukup mengisi formulir nama produk, mengunggah foto, menentukan harga promo, dan
+                memasukkan nomor WhatsApp toko Anda. Sistem kami secara otomatis membuatkan landing page produk yang
+                elegan dan siap tayang.
               </p>
             </div>
           </div>
@@ -973,7 +1109,9 @@
             </button>
             <div class="faq-answer-panel">
               <p class="faq-answer-text">
-                Calon pembeli akan langsung diarahkan ke kontak WhatsApp resmi toko Anda. Kesepakatan pembayaran dilakukan langsung antara Anda dan pembeli (transfer bank langsung atau metode kirim paket COD bayar di tempat saat barang sampai).
+                Calon pembeli akan langsung diarahkan ke kontak WhatsApp resmi toko Anda. Kesepakatan pembayaran
+                dilakukan langsung antara Anda dan pembeli (transfer bank langsung atau metode kirim paket COD bayar di
+                tempat saat barang sampai).
               </p>
             </div>
           </div>
@@ -986,7 +1124,8 @@
             </button>
             <div class="faq-answer-panel">
               <p class="faq-answer-text">
-                Setelah konfirmasi detail produk dan verifikasi paket iklan, produk Anda akan segera ditayangkan dan masuk ke etalase aktif maksimal dalam waktu 15 - 30 menit.
+                Setelah konfirmasi detail produk dan verifikasi paket iklan, produk Anda akan segera ditayangkan dan
+                masuk ke etalase aktif maksimal dalam waktu 15 - 30 menit.
               </p>
             </div>
           </div>
@@ -999,7 +1138,9 @@
             </button>
             <div class="faq-answer-panel">
               <p class="faq-answer-text">
-                0% komisi! Produk_lokal by kopia tidak memungut biaya potongan sepeser pun dari penjualan Anda. Pembeli langsung membayar ke rekening toko Anda atau tunai di tempat via COD, tanpa saldo yang ditahan di platform.
+                0% komisi! Produk_lokal by kopia tidak memungut biaya potongan sepeser pun dari penjualan Anda. Pembeli
+                langsung membayar ke rekening toko Anda atau tunai di tempat via COD, tanpa saldo yang ditahan di
+                platform.
               </p>
             </div>
           </div>
@@ -1011,19 +1152,22 @@
     <section class="bottom-cta-section">
       <div class="container">
         <div class="bottom-cta-box">
-          <span style="display:inline-block; padding:4px 14px; border-radius:9999px; background:rgba(255,87,34,0.25); color:var(--secondary-container); font-size:12px; font-weight:800; text-transform:uppercase; margin-bottom:16px;">
+          <span
+            style="display:inline-block; padding:4px 14px; border-radius:9999px; background:rgba(255,87,34,0.25); color:var(--secondary-container); font-size:12px; font-weight:800; text-transform:uppercase; margin-bottom:16px;">
             Dukung Karya Anak Bangsa
           </span>
           <h2 class="bottom-cta-title">Siap Temukan Produk Lokal Pilihan & Dukung UMKM?</h2>
           <p class="bottom-cta-sub">
-            Jelajahi ribuan produk unggulan langsung dari pengrajin, produsen, dan brand lokal di Produk_lokal by kopia. Transaksi langsung, cepat, dan aman via WhatsApp & marketplace resmi.
+            Jelajahi ribuan produk unggulan langsung dari pengrajin, produsen, dan brand lokal di Produk_lokal by kopia.
+            Transaksi langsung, cepat, dan aman via WhatsApp & marketplace resmi.
           </p>
           <div class="bottom-cta-buttons">
             <a href="#etalaseSection" class="btn-cta-big-orange">
               <span class="material-symbols-outlined">storefront</span>
               <span>Jelajahi Etalase Produk Lokal</span>
             </a>
-            <a href="https://wa.me/6285771624349?text=Halo%20Admin%20Produk_lokal%20by%20kopia,%20saya%20ingin%20tanya%20info%20produk." target="_blank" class="btn-cta-big-wa">
+            <a href="https://wa.me/6285771624349?text=Halo%20Admin%20Produk_lokal%20by%20kopia,%20saya%20ingin%20tanya%20info%20produk."
+              target="_blank" class="btn-cta-big-wa">
               <span class="material-symbols-outlined" style="color:var(--whatsapp-green);">chat</span>
               <span>Hubungi CS WhatsApp</span>
             </a>
@@ -1035,117 +1179,70 @@
   </main>
 
   <!-- ===================================================================
-       FOOTER
+       FOOTER (PREMIUM MINIMALIST WHITE THEME - BY KOPIA)
        =================================================================== -->
   <footer class="site-footer">
     <div class="container">
-      <!-- 4 Value Highlights Row -->
-      <div class="footer-perks-row">
-        <div class="footer-perk-card">
-          <div class="footer-perk-icon" style="background:var(--primary);">
-            <span class="material-symbols-outlined">savings</span>
-          </div>
-          <div>
-            <h4 class="footer-perk-title">0% Fee & Tanpa Saldo Tertahan</h4>
-            <p class="footer-perk-desc">Harga murni dari penjual tanpa markup komisi perantara aplikasi.</p>
-          </div>
-        </div>
-
-        <div class="footer-perk-card">
-          <div class="footer-perk-icon" style="background:var(--whatsapp-green);">
-            <span class="material-symbols-outlined">chat</span>
-          </div>
-          <div>
-            <h4 class="footer-perk-title">Chat WhatsApp Langsung</h4>
-            <p class="footer-perk-desc">Draf pesan otomatis terkirim langsung ke admin toko resmi.</p>
-          </div>
-        </div>
-
-        <div class="footer-perk-card">
-          <div class="footer-perk-icon" style="background:var(--tertiary-emerald);">
-            <span class="material-symbols-outlined">local_shipping</span>
-          </div>
-          <div>
-            <h4 class="footer-perk-title">Opsi COD Terpercaya</h4>
-            <p class="footer-perk-desc">Bayar tunai saat barang pesanan tiba di depan pintu rumah Anda.</p>
-          </div>
-        </div>
-
-        <div class="footer-perk-card">
-          <div class="footer-perk-icon" style="background:var(--promo-amber);">
-            <span class="material-symbols-outlined">verified_user</span>
-          </div>
-          <div>
-            <h4 class="footer-perk-title">Garansi Produk Asli</h4>
-            <p class="footer-perk-desc">Kurasi ketat produk UMKM & brand lokal berkualitas by kopia.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Main Footer Columns -->
-      <div class="footer-main-grid">
-        <!-- Col 1: Brand Info -->
-        <div>
-          <div class="brand-logo" style="margin-bottom:14px;">
-            <div class="brand-icon">
-              <span class="material-symbols-outlined">local_mall</span>
-            </div>
-            <div class="brand-text">
-              <span class="brand-name">Produk_lokal <span class="brand-by-tag">by kopia</span></span>
-              <span class="brand-sub">Platform Direct-Commerce Produk Lokal</span>
-            </div>
-          </div>
-          <p style="font-size:13.5px; color:var(--text-muted); line-height:1.6; margin-bottom:14px;">
-            Platform etalase promo digital untuk UMKM dan brand lokal Indonesia. Transaksi langsung, tanpa proses rumit, dan bebas potongan komisi.
-          </p>
-          <div style="display:inline-flex; align-items:center; gap:6px; padding:4px 12px; border-radius:9999px; background:var(--tertiary-light); color:var(--tertiary-emerald); font-size:12px; font-weight:700;">
-            <span class="material-symbols-outlined" style="font-size:16px;">verified</span>
-            <span>Kurasi Terverifikasi 2026</span>
-          </div>
-        </div>
-
-        <!-- Col 2: Jelajahi Promo -->
-        <div>
-          <h4 class="footer-col-title">Jelajahi Produk</h4>
-          <ul class="footer-links-list">
-            <li class="footer-link-item"><a href="#flashSaleSection">Flash Sale Kilat</a></li>
-            <li class="footer-link-item"><a href="#categoriesSection">Kopi & Kuliner Nusantara</a></li>
-            <li class="footer-link-item"><a href="#categoriesSection">Fashion & Wastra Lokal</a></li>
-            <li class="footer-link-item"><a href="#etalaseSection">Etalase Terverifikasi</a></li>
-          </ul>
-        </div>
-
-        <!-- Col 3: Untuk Penjual & Pembeli -->
-        <div>
-          <h4 class="footer-col-title">Untuk Pelaku Usaha</h4>
-          <ul class="footer-links-list">
-            <li class="footer-link-item"><a href="#pricingSection" onclick="openSellerAdModal('Pro')">Pasang Produk Baru</a></li>
-            <li class="footer-link-item"><a href="#howItWorksSection">Panduan Cara Kerja Seller</a></li>
-            <li class="footer-link-item"><a href="#pricingSection">Biaya & Pilihan Paket</a></li>
-            <li class="footer-link-item"><a href="#faqSection">Pertanyaan Umum (FAQ)</a></li>
-          </ul>
-        </div>
-
-        <!-- Col 4: CS & Support -->
-        <div>
-          <h4 class="footer-col-title">Pusat Bantuan & CS</h4>
-          <p style="font-size:13px; color:var(--text-muted); margin-bottom:12px; line-height:1.5;">
-            Butuh bantuan terkait pemesanan produk lokal atau aktivasi etalase tokomu? Hubungi tim respons kilat kami:
-          </p>
-          <a href="https://wa.me/6285771624349?text=Halo%20Admin%20Produk_lokal%20by%20kopia,%20saya%20butuh%20bantuan." target="_blank" style="display:inline-flex; align-items:center; gap:8px; padding:10px 18px; border-radius:10px; background:var(--whatsapp-green); color:#fff; font-size:13px; font-weight:700;">
-            <span class="material-symbols-outlined">chat</span>
-            <span>WhatsApp CS Resmi</span>
+      <div class="dark-footer-grid">
+        <!-- Col 1: Brand Info & Description (by.ikatayeb style) -->
+        <div class="dark-footer-col dark-brand-col">
+          <a href="#hero" class="dark-brand-title" aria-label="Produk_lokal by kopia">
+            <span class="dark-brand-serif">produk_lokal</span>
+            <span class="dark-brand-kopia">by kopia</span>
           </a>
+          <p class="dark-brand-desc">
+            Platform etalase kurasi produk UMKM dan brand lokal terdepan yang menghadirkan produk berkualitas langsung
+            dari produsen resmi dengan harga jujur, aman, dan tanpa potongan perantara untuk setiap pembeli cerdas.
+          </p>
+        </div>
+
+        <!-- Col 2: KOLEKSI PILIHAN -->
+        <div class="dark-footer-col">
+          <h4 class="dark-footer-col-title">KOLEKSI PILIHAN</h4>
+          <ul class="dark-footer-links">
+            <li><a href="#etalaseSection">Collections</a></li>
+            <li><a href="#flashSaleSection">Flash Sale Kilat</a></li>
+            <li><a href="#categoriesSection">Kopi &amp; Kuliner Nusantara</a></li>
+            <li><a href="#categoriesSection">Fashion &amp; Wastra Lokal</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: LAYANAN PELANGGAN -->
+        <div class="dark-footer-col">
+          <h4 class="dark-footer-col-title">LAYANAN PELANGGAN</h4>
+          <ul class="dark-footer-links">
+            <li><a
+                href="https://wa.me/6285771624349?text=Halo%20Admin%20Produk_lokal%20by%20kopia,%20saya%20ingin%20konfirmasi%20pembayaran%20transfer."
+                target="_blank" rel="noopener noreferrer">Konfirmasi Pembayaran</a></li>
+            <li><a href="#howItWorksSection">Panduan Belanja</a></li>
+            <li><a href="#faqSection">FAQ &amp; Ketentuan Retur</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 4: LAYANAN & KONTAK -->
+        <div class="dark-footer-col">
+          <h4 class="dark-footer-col-title">LAYANAN &amp; KONTAK</h4>
+          <div class="dark-footer-contact">
+            <p class="dark-contact-line-1">Official Online Platform &amp; E-Catalog</p>
+            <p class="dark-contact-line-2">by kopia &bull; Pengiriman ke Seluruh Indonesia</p>
+            <p class="dark-contact-wa-line">
+              <span>WhatsApp: </span>
+              <a href="https://wa.me/6285771624349?text=Halo%20Official%20CS%20Produk_lokal%20by%20kopia,"
+                target="_blank" rel="noopener noreferrer">
+                Official CS by.produk_lokal
+              </a>
+            </p>
+          </div>
         </div>
       </div>
 
-      <!-- Bottom Copyright & Legal -->
-      <div class="footer-bottom-row">
-        <p>© 2026 Produk_lokal by kopia Indonesia. Hak cipta dilindungi. Promo langsung dari pemilik bisnis.</p>
-        <div class="footer-legal-links">
-          <a href="#faqSection">Ketentuan Layanan</a>
-          <a href="#faqSection">Kebijakan Privasi</a>
-          <a href="#faqSection">Keamanan Transaksi COD</a>
+      <!-- Bottom Separator & Copyright Row -->
+      <div class="dark-footer-bottom">
+        <div class="dark-footer-copy">
+          &copy; 2026 produk_lokal by kopia Official Store. All Rights Reserved.
+        </div>
+        <div class="dark-footer-sub">
+          Form Pemesanan Langsung &amp; E-Catalog Official Store
         </div>
       </div>
     </div>
@@ -1156,7 +1253,8 @@
        =================================================================== -->
   <div class="modal-overlay" id="quickDetailModal" onclick="handleModalOverlayClick(event)">
     <div class="modal-container" role="dialog" aria-modal="true" aria-labelledby="modalDetailTitle">
-      <button type="button" class="btn-modal-close" onclick="closeProductDetailModal()" aria-label="Tutup Halaman Produk">
+      <button type="button" class="btn-modal-close" onclick="closeProductDetailModal()"
+        aria-label="Tutup Halaman Produk">
         <span class="material-symbols-outlined">close</span>
       </button>
 
@@ -1168,8 +1266,8 @@
             <span>Produk Lokal Terverifikasi</span>
           </span>
           <span class="modal-badge-cod">
-            <span class="material-symbols-outlined" style="font-size:15px;">payments</span>
-            <span>Bisa Bayar di Tempat (COD)</span>
+            <span class="material-symbols-outlined" style="font-size:15px;">account_balance</span>
+            <span>Pembayaran Transfer Bank</span>
           </span>
           <span class="modal-badge-kopia">
             <span class="material-symbols-outlined" style="font-size:15px;">local_mall</span>
@@ -1200,7 +1298,8 @@
               <span>CS Online (08:00 - 21:00)</span>
             </div>
             <div class="modal-rating-badge">
-              <span class="material-symbols-outlined fill-icon" style="color:var(--promo-amber); font-size:16px;">star</span>
+              <span class="material-symbols-outlined fill-icon"
+                style="color:var(--promo-amber); font-size:16px;">star</span>
               <strong id="modalDetailRatingNum">5.0</strong>
               <span id="modalDetailReviewsCount" style="color:var(--text-muted); font-size:12px;">(184 ulasan)</span>
             </div>
@@ -1233,8 +1332,32 @@
             <!-- Populated dynamically by app.js -->
           </div>
           <div class="modal-variant-helper">
-            <span class="material-symbols-outlined" style="font-size:15px; color:var(--tertiary-emerald);">check_circle</span>
-            <span>Varian yang kamu klik otomatis masuk ke draf chat WhatsApp penjual!</span>
+            <span class="material-symbols-outlined"
+              style="font-size:15px; color:var(--tertiary-emerald);">check_circle</span>
+            <span>Varian yang kamu klik otomatis masuk ke draf pesanan &amp; chat WhatsApp!</span>
+          </div>
+        </div>
+
+        <!-- Jumlah Pembelian (Quantity Stepper) -->
+        <div class="modal-quantity-section">
+          <div class="modal-quantity-header">
+            <span class="material-symbols-outlined" style="font-size:18px; color:var(--primary);">add_shopping_cart</span>
+            <span class="modal-quantity-title">Jumlah Pesanan:</span>
+          </div>
+          <div class="modal-qty-control-wrap">
+            <div class="modal-qty-stepper">
+              <button type="button" class="btn-qty-step" onclick="changeModalQuantity(-1)" aria-label="Kurangi Jumlah">
+                <span class="material-symbols-outlined" style="font-size:16px;">remove</span>
+              </button>
+              <input type="number" id="modalDetailQty" class="input-qty-number" value="1" min="1" max="99" onchange="validateModalQuantity(this)" oninput="updateModalSubtotal()">
+              <button type="button" class="btn-qty-step" onclick="changeModalQuantity(1)" aria-label="Tambah Jumlah">
+                <span class="material-symbols-outlined" style="font-size:16px;">add</span>
+              </button>
+            </div>
+            <div class="modal-subtotal-info">
+              <span class="modal-subtotal-label">Estimasi Subtotal:</span>
+              <strong class="modal-subtotal-value" id="modalSubtotalPreview">Rp 89.000</strong>
+            </div>
           </div>
         </div>
 
@@ -1253,10 +1376,10 @@
               </div>
             </div>
             <div class="trust-item">
-              <span class="material-symbols-outlined trust-icon">payments</span>
+              <span class="material-symbols-outlined trust-icon">account_balance</span>
               <div>
-                <strong>Bisa Bayar di Tempat (COD)</strong>
-                <p>Cek paket pesanan dan bayar tunai ke kurir saat barang tiba.</p>
+                <strong>Pembayaran Transfer Bank</strong>
+                <p>Transfer langsung ke rekening resmi penjual dengan verifikasi instan.</p>
               </div>
             </div>
             <div class="trust-item">
@@ -1302,16 +1425,29 @@
           <p id="modalDetailDesc" class="modal-desc-text"></p>
         </div>
 
-        <!-- Direct Purchase Notice (No complicated checkout) -->
-        <div class="direct-commerce-banner">
-          <span class="material-symbols-outlined">bolt</span>
-          <span><strong>Beli Langsung ke Penjual:</strong> Bebas proses keranjang rumit & tanpa saldo tertahan di platform!</span>
-        </div>
-
-        <!-- Direct Conversion Actions: Chat WhatsApp & Beli Sekarang -->
+        <!-- Direct Conversion Actions: Form Order, Masukkan Keranjang, & Chat WA -->
         <div class="modal-actions-container">
-          <!-- Button 1: WhatsApp Direct with Automatic Draft (Tautan Murni Frontend wa.me) -->
-          <a href="#" target="_blank" rel="noopener noreferrer" id="modalWaDirectLink" class="btn-modal-wa" onclick="proceedModalWhatsApp(event)">
+          <!-- Button 1: Pesan Sekarang via Form Order -->
+          <button type="button" class="btn-modal-order-now" onclick="openOrderFormForActiveProduct()">
+            <div class="btn-action-icon-wrap" style="background:#fff; color:var(--primary); width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+              <span class="material-symbols-outlined" style="font-size:20px;">shopping_cart_checkout</span>
+            </div>
+            <div class="btn-action-text-group" style="flex:1;">
+              <span class="btn-action-main" style="display:block; font-size:14.5px; font-weight:800;">Pesan Sekarang (Isi Form Order)</span>
+              <span class="btn-action-sub" style="display:block; font-size:11.5px; opacity:0.85;">Isi alamat pengiriman &amp; konfirmasi otomatis ke WA toko</span>
+            </div>
+            <span class="material-symbols-outlined btn-arrow-icon">arrow_forward</span>
+          </button>
+
+          <!-- Button 2: Masukkan ke Keranjang Belanja -->
+          <button type="button" class="btn-modal-add-cart" onclick="addActiveProductToCart()">
+            <span class="material-symbols-outlined">add_shopping_cart</span>
+            <span>+ Masukkan ke Keranjang Belanja</span>
+          </button>
+
+          <!-- Button 3: WhatsApp Direct with Automatic Draft (Tautan Murni Frontend wa.me) -->
+          <a href="#" target="_blank" rel="noopener noreferrer" id="modalWaDirectLink" class="btn-modal-wa"
+            onclick="proceedModalWhatsApp(event)">
             <div class="btn-wa-icon-wrap">
               <span class="material-symbols-outlined">chat</span>
             </div>
@@ -1365,7 +1501,8 @@
           </div>
           <h3 class="seller-modal-title">Buat Halaman Promosi Produk Instan</h3>
           <p class="seller-modal-sub">
-            Tanpa perlu sewa website atau paham coding. Cukup isi formulir ringkas ini — halaman promosi produk Anda langsung aktif dan siap disebar ke calon pembeli WhatsApp &amp; sosmed!
+            Tanpa perlu sewa website atau paham coding. Cukup isi formulir ringkas ini — halaman promosi produk Anda
+            langsung aktif dan siap disebar ke calon pembeli WhatsApp &amp; sosmed!
           </p>
         </div>
 
@@ -1376,7 +1513,9 @@
               <span>Nama Produk Lokal</span>
               <span class="required-star">*</span>
             </label>
-            <input type="text" id="adTitleInput" class="form-input" placeholder="Contoh: Kopi Arabika Gayo Single Origin 250g Roast Beans" required oninput="calculateDiscountPreview(); updateWaTemplatePreview();">
+            <input type="text" id="adTitleInput" class="form-input"
+              placeholder="Contoh: Kopi Arabika Gayo Single Origin 250g Roast Beans" required
+              oninput="calculateDiscountPreview(); updateWaTemplatePreview();">
           </div>
 
           <div class="form-grid-2">
@@ -1415,7 +1554,8 @@
               </label>
               <!-- Photo Mode Switcher Tabs -->
               <div class="photo-mode-tabs">
-                <button type="button" class="photo-tab-btn active" id="tabUploadBtn" onclick="switchPhotoMode('upload')">
+                <button type="button" class="photo-tab-btn active" id="tabUploadBtn"
+                  onclick="switchPhotoMode('upload')">
                   <span class="material-symbols-outlined" style="font-size:14px;">upload_file</span>
                   <span>Upload Galeri / Kamera HP</span>
                 </button>
@@ -1429,15 +1569,18 @@
             <!-- Mode 1: Drag & Drop / Click to Upload from Gallery (Default) -->
             <div class="photo-mode-content" id="photoModeUpload">
               <!-- Dropzone -->
-              <div class="upload-dropzone" id="adDropzone" onclick="document.getElementById('adFileInput').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
-                <input type="file" id="adFileInput" accept="image/*" style="display:none;" onchange="handleAdFileUpload(event, 'create')">
+              <div class="upload-dropzone" id="adDropzone" onclick="document.getElementById('adFileInput').click()"
+                ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+                <input type="file" id="adFileInput" accept="image/*" style="display:none;"
+                  onchange="handleAdFileUpload(event, 'create')">
                 <div class="upload-dropzone-inner">
                   <div class="dropzone-icon-circle">
                     <span class="material-symbols-outlined">add_photo_alternate</span>
                   </div>
                   <div class="dropzone-text-group">
                     <strong class="dropzone-main-text">Klik atau Seret Foto Produk dari HP / Komputer</strong>
-                    <p class="dropzone-sub-text">Mendukung format JPG, PNG, WebP. Foto resolusi tinggi otomatis dikompres ke ~200KB agar cepat dimuat pembeli.</p>
+                    <p class="dropzone-sub-text">Mendukung format JPG, PNG, WebP. Foto resolusi tinggi otomatis
+                      dikompres ke ~200KB agar cepat dimuat pembeli.</p>
                   </div>
                 </div>
               </div>
@@ -1456,11 +1599,13 @@
                   <span class="upload-result-savings" id="adUploadSavings">Ukuran: 185 KB (Otomatis dikompres)</span>
                 </div>
                 <div class="upload-result-actions">
-                  <button type="button" class="btn-change-photo" onclick="document.getElementById('adFileInput').click()">
+                  <button type="button" class="btn-change-photo"
+                    onclick="document.getElementById('adFileInput').click()">
                     <span class="material-symbols-outlined" style="font-size:14px;">sync</span>
                     <span>Ganti</span>
                   </button>
-                  <button type="button" class="btn-remove-photo" onclick="removeUploadedPhoto('create')" title="Hapus Foto">
+                  <button type="button" class="btn-remove-photo" onclick="removeUploadedPhoto('create')"
+                    title="Hapus Foto">
                     <span class="material-symbols-outlined" style="font-size:16px;">delete</span>
                   </button>
                 </div>
@@ -1470,15 +1615,21 @@
             <!-- Mode 3: Tautan URL Gambar Manual -->
             <div class="photo-mode-content" id="photoModeUrl" style="display:none;">
               <div class="photo-input-row">
-                <input type="url" id="adImgInput" class="form-input" placeholder="https://images.unsplash.com/... atau link foto online" value="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=700&q=80" oninput="updateAdPhotoPreview(this.value)">
+                <input type="url" id="adImgInput" class="form-input"
+                  placeholder="https://images.unsplash.com/... atau link foto online"
+                  value="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=700&q=80"
+                  oninput="updateAdPhotoPreview(this.value)">
                 <div class="photo-preview-thumbnail" id="adPhotoThumb">
-                  <img id="adPhotoPreviewImg" src="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=700&q=80" alt="Preview Foto">
+                  <img id="adPhotoPreviewImg"
+                    src="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=700&q=80"
+                    alt="Preview Foto">
                 </div>
               </div>
             </div>
 
             <!-- Hidden input to store active final image source (base64 data URL or external URL) -->
-            <input type="hidden" id="adActiveImgValue" value="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=700&q=80">
+            <input type="hidden" id="adActiveImgValue"
+              value="https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=700&q=80">
           </div>
 
           <!-- 3. Harga Coret vs Harga Promo -->
@@ -1487,7 +1638,8 @@
               <label class="form-label">
                 <span>Harga Normal / Coret (Rp)</span>
               </label>
-              <input type="number" id="adNormalPriceInput" class="form-input" placeholder="Contoh: 165000" value="165000" oninput="calculateDiscountPreview(); updateWaTemplatePreview();">
+              <input type="number" id="adNormalPriceInput" class="form-input" placeholder="Contoh: 165000"
+                value="165000" oninput="calculateDiscountPreview(); updateWaTemplatePreview();">
               <span class="form-helper">Harga sebelum diskon (akan dicoret)</span>
             </div>
 
@@ -1496,7 +1648,8 @@
                 <span>Harga Promo Khusus (Rp)</span>
                 <span class="required-star">*</span>
               </label>
-              <input type="number" id="adPromoPriceInput" class="form-input" placeholder="Contoh: 89000" value="89000" required oninput="calculateDiscountPreview(); updateWaTemplatePreview();">
+              <input type="number" id="adPromoPriceInput" class="form-input" placeholder="Contoh: 89000" value="89000"
+                required oninput="calculateDiscountPreview(); updateWaTemplatePreview();">
               <span class="form-helper">Harga yang dibayar pembeli</span>
             </div>
           </div>
@@ -1508,7 +1661,8 @@
               <span id="adDiscountCalcText">Pembeli hemat Rp 76.000</span>
             </div>
             <div class="discount-calc-right">
-              <span class="material-symbols-outlined" style="font-size:15px; color:var(--tertiary-emerald);">verified</span>
+              <span class="material-symbols-outlined"
+                style="font-size:15px; color:var(--tertiary-emerald);">verified</span>
               <span id="adNetIncomeText">Keuntungan bersih: <strong>Rp 89.000</strong> (0% Komisi)</span>
             </div>
           </div>
@@ -1559,7 +1713,8 @@
                 <span>Nama Toko / Brand UMKM</span>
                 <span class="required-star">*</span>
               </label>
-              <input type="text" id="adSellerNameInput" class="form-input" placeholder="Contoh: Kopia Artisan Roast" value="Kopia Artisan Roast" required oninput="updateWaTemplatePreview()">
+              <input type="text" id="adSellerNameInput" class="form-input" placeholder="Contoh: Kopia Artisan Roast"
+                value="Kopia Artisan Roast" required oninput="updateWaTemplatePreview()">
             </div>
 
             <div class="form-group">
@@ -1570,24 +1725,29 @@
                 </label>
                 <span class="operator-pill" id="adOperatorPill">Indosat Ooredoo</span>
               </div>
-              
+
               <div class="phone-smart-input-group">
                 <div class="phone-prefix-badge">
                   <span>🇮🇩 +62</span>
                 </div>
-                <input type="tel" id="adPhoneInput" class="form-input phone-input-smart" placeholder="Contoh: 0857-7162-4349 atau 0812..." value="0857-7162-4349" required oninput="handlePhoneInputFormat(this, 'adOperatorPill')">
-                <button type="button" class="btn-test-wa" onclick="testSellerWhatsAppNumber('adPhoneInput')" title="Uji Coba Tautan WhatsApp">
+                <input type="tel" id="adPhoneInput" class="form-input phone-input-smart"
+                  placeholder="Contoh: 0857-7162-4349 atau 0812..." value="0857-7162-4349" required
+                  oninput="handlePhoneInputFormat(this, 'adOperatorPill')">
+                <button type="button" class="btn-test-wa" onclick="testSellerWhatsAppNumber('adPhoneInput')"
+                  title="Uji Coba Tautan WhatsApp">
                   <span class="material-symbols-outlined">send</span>
                   <span>Tes WA</span>
                 </button>
               </div>
-              <span class="form-helper">Ketik format apa saja (0857... atau 628...), otomatis dinormalkan ke standar internasional.</span>
+              <span class="form-helper">Ketik format apa saja (0857... atau 628...), otomatis dinormalkan ke standar
+                internasional.</span>
             </div>
           </div>
 
           <div class="form-group">
             <label class="form-label">Kota Asal Pengiriman Workshop</label>
-            <input type="text" id="adLocationInput" class="form-input" placeholder="Contoh: Bandung / Takengon, Aceh / Yogyakarta" value="Takengon, Aceh">
+            <input type="text" id="adLocationInput" class="form-input"
+              placeholder="Contoh: Bandung / Takengon, Aceh / Yogyakarta" value="Takengon, Aceh">
           </div>
 
           <!-- 6. Template Pesan WhatsApp Otomatis & Live Simulator -->
@@ -1600,13 +1760,19 @@
             <!-- Quick Insert Dynamic Tags -->
             <div class="wa-tags-row">
               <span class="wa-tag-label">Sisipkan Cepat:</span>
-              <button type="button" class="btn-wa-tag-pill" onclick="insertDynamicTagToWa('adWaTemplateInput', '[Nama Produk]')">+ Nama Produk</button>
-              <button type="button" class="btn-wa-tag-pill" onclick="insertDynamicTagToWa('adWaTemplateInput', '[Harga Promo]')">+ Harga</button>
-              <button type="button" class="btn-wa-tag-pill" onclick="insertDynamicTagToWa('adWaTemplateInput', '[Opsi COD]')">+ Tanya COD</button>
-              <button type="button" class="btn-wa-tag-pill" onclick="insertDynamicTagToWa('adWaTemplateInput', '[Format Order]')">+ Format Alamat</button>
+              <button type="button" class="btn-wa-tag-pill"
+                onclick="insertDynamicTagToWa('adWaTemplateInput', '[Nama Produk]')">+ Nama Produk</button>
+              <button type="button" class="btn-wa-tag-pill"
+                onclick="insertDynamicTagToWa('adWaTemplateInput', '[Harga Promo]')">+ Harga</button>
+              <button type="button" class="btn-wa-tag-pill"
+                onclick="insertDynamicTagToWa('adWaTemplateInput', '[Opsi COD]')">+ Tanya COD</button>
+              <button type="button" class="btn-wa-tag-pill"
+                onclick="insertDynamicTagToWa('adWaTemplateInput', '[Format Order]')">+ Format Alamat</button>
             </div>
 
-            <textarea id="adWaTemplateInput" class="form-textarea" rows="3" placeholder="Pesan otomatis yang akan langsung terisi di layar WhatsApp pembeli saat mengklik tombol Chat WA..." oninput="updateLiveWaChatBubble()"></textarea>
+            <textarea id="adWaTemplateInput" class="form-textarea" rows="3"
+              placeholder="Pesan otomatis yang akan langsung terisi di layar WhatsApp pembeli saat mengklik tombol Chat WA..."
+              oninput="updateLiveWaChatBubble()"></textarea>
 
             <!-- Realistic Live WhatsApp Chat Preview Simulator -->
             <div class="wa-chat-simulator-card">
@@ -1616,7 +1782,9 @@
               </div>
               <div class="wa-chat-bubble" id="waChatBubblePreview">
                 <p class="wa-bubble-text" id="waBubbleContent">
-                  Halo Kopia Artisan Roast, saya melihat promo "Kopi Arabika Gayo Single Origin 250g" di Produk_lokal by kopia (Rp 89.000). Saya tertarik memesan dan ingin konfirmasi ketersediaan stok serta pengiriman COD ke alamat saya. Terima kasih!
+                  Halo Kopia Artisan Roast, saya melihat promo "Kopi Arabika Gayo Single Origin 250g" di Produk_lokal by
+                  kopia (Rp 89.000). Saya tertarik memesan dan ingin konfirmasi ketersediaan stok serta pengiriman COD
+                  ke alamat saya. Terima kasih!
                 </p>
                 <div class="wa-bubble-meta">
                   <span class="wa-bubble-time" id="waBubbleTime">10:05</span>
@@ -1629,7 +1797,8 @@
           <!-- Deskripsi Produk Singkat -->
           <div class="form-group">
             <label class="form-label">Deskripsi Singkat &amp; Cerita Produk</label>
-            <textarea id="adDescInput" class="form-textarea" rows="2" placeholder="Ceritakan bahan asli, keunikan, atau garansi produk lokal Anda..."></textarea>
+            <textarea id="adDescInput" class="form-textarea" rows="2"
+              placeholder="Ceritakan bahan asli, keunikan, atau garansi produk lokal Anda..."></textarea>
           </div>
 
           <!-- Submit Buttons -->
@@ -1665,7 +1834,8 @@
       <span class="badge-screen-pill" style="justify-content:center; margin:10px auto 6px;">Iklan Berhasil Terbit</span>
       <h3 class="publish-success-title">Halaman Promosi Instan Langsung Aktif!</h3>
       <p class="publish-success-desc">
-        Produk Anda telah berhasil ditayangkan di etalase <strong>Produk_lokal by kopia</strong> dan siap disebarkan ke calon pembeli WhatsApp maupun media sosial.
+        Produk Anda telah berhasil ditayangkan di etalase <strong>Produk_lokal by kopia</strong> dan siap disebarkan ke
+        calon pembeli WhatsApp maupun media sosial.
       </p>
 
       <!-- Mini Card Preview -->
@@ -1691,7 +1861,8 @@
           <span class="material-symbols-outlined">visibility</span>
           <span>Buka Halaman Iklan</span>
         </button>
-        <button type="button" class="btn-goto-dashboard" onclick="closePublishSuccessModal(); openSellerDashboardModal();">
+        <button type="button" class="btn-goto-dashboard"
+          onclick="closePublishSuccessModal(); openSellerDashboardModal();">
           <span class="material-symbols-outlined">monitoring</span>
           <span>Buka Dashboard Seller</span>
         </button>
@@ -1703,8 +1874,9 @@
        LAYAR 2: DASHBOARD SELLER (MEMANTAU PERFORMA PENJUALAN)
        =================================================================== -->
   <div class="modal-overlay" id="sellerDashboardModal" onclick="handleDashboardOverlayClick(event)">
-    <div class="modal-container modal-dashboard-container" role="dialog" aria-modal="true" aria-labelledby="dashboardSellerTitle">
-      
+    <div class="modal-container modal-dashboard-container" role="dialog" aria-modal="true"
+      aria-labelledby="dashboardSellerTitle">
+
       <!-- Sticky Modern Topbar -->
       <div class="dashboard-topbar">
         <div class="dashboard-topbar-left">
@@ -1716,7 +1888,8 @@
           <span class="dash-top-brand">Produk_lokal <span class="brand-by-tag">by kopia</span></span>
           <span class="badge-live-pulse"><span class="pulse-dot"></span> Online</span>
         </div>
-        <button type="button" class="btn-modal-close btn-dashboard-close" onclick="closeSellerDashboardModal()" aria-label="Tutup Dashboard">
+        <button type="button" class="btn-modal-close btn-dashboard-close" onclick="closeSellerDashboardModal()"
+          aria-label="Tutup Dashboard">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
@@ -1738,13 +1911,16 @@
                 <span class="badge-plan-status" id="dashboardPlanBadge">Paket Pro (30 Hari) ⭐</span>
               </div>
               <p class="dashboard-shop-sub">
-                <span class="material-symbols-outlined" style="font-size:14px; vertical-align:middle; color:var(--text-muted);">location_on</span> Takengon, Aceh • <strong>0% Saldo Tertahan</strong> • Transaksi Langsung Masuk ke Rekening / COD Toko
+                <span class="material-symbols-outlined"
+                  style="font-size:14px; vertical-align:middle; color:var(--text-muted);">location_on</span> Takengon,
+                Aceh • <strong>0% Saldo Tertahan</strong> • Transaksi Langsung Masuk ke Rekening / COD Toko
               </p>
             </div>
           </div>
 
           <div class="dashboard-header-actions">
-            <button type="button" class="btn-dash-public-store" onclick="closeSellerDashboardModal(); document.getElementById('etalaseSection').scrollIntoView({behavior:'smooth'});">
+            <button type="button" class="btn-dash-public-store"
+              onclick="closeSellerDashboardModal(); document.getElementById('etalaseSection').scrollIntoView({behavior:'smooth'});">
               <span class="material-symbols-outlined">open_in_new</span>
               <span>Lihat Etalase Toko</span>
             </button>
@@ -1780,7 +1956,8 @@
               <span class="kpi-label">Total Tayangan Iklan (Views)</span>
               <div class="kpi-value-row">
                 <span class="kpi-number" id="dashTotalViews">14.820</span>
-                <span class="kpi-trend up"><span class="material-symbols-outlined" style="font-size:12px;">trending_up</span> +18.4%</span>
+                <span class="kpi-trend up"><span class="material-symbols-outlined"
+                    style="font-size:12px;">trending_up</span> +18.4%</span>
               </div>
               <span class="kpi-sub">Total calon pembeli yang melihat iklan produk Anda</span>
             </div>
@@ -1795,7 +1972,8 @@
               <span class="kpi-label">Klik ke WhatsApp (Leads)</span>
               <div class="kpi-value-row">
                 <span class="kpi-number" id="dashTotalLeads">642</span>
-                <span class="kpi-trend up"><span class="material-symbols-outlined" style="font-size:12px;">trending_up</span> +24.1%</span>
+                <span class="kpi-trend up"><span class="material-symbols-outlined"
+                    style="font-size:12px;">trending_up</span> +24.1%</span>
               </div>
               <span class="kpi-sub">Calon pembeli potensial siap order via WhatsApp</span>
             </div>
@@ -1895,7 +2073,8 @@
 
             <div class="traffic-insight-card">
               <span class="material-symbols-outlined">tips_and_updates</span>
-              <span><strong>Insight:</strong> 58% pembeli datang dari pencarian etalase. Tambahkan kata kunci spesifik agar produk lebih mudah ditemukan!</span>
+              <span><strong>Insight:</strong> 58% pembeli datang dari pencarian etalase. Tambahkan kata kunci spesifik
+                agar produk lebih mudah ditemukan!</span>
             </div>
           </div>
 
@@ -1931,10 +2110,14 @@
               </p>
             </div>
             <div class="ads-filter-tabs" id="dashAdFilterTabs">
-              <button type="button" class="ad-tab-btn active" onclick="filterDashboardAds('all', this)">Semua (<span id="dashCountAll">0</span>)</button>
-              <button type="button" class="ad-tab-btn" onclick="filterDashboardAds('active', this)">Aktif Tayang (<span id="dashCountActive">0</span>)</button>
-              <button type="button" class="ad-tab-btn" onclick="filterDashboardAds('expiring', this)">Hampir Habis (<span id="dashCountExpiring">0</span>)</button>
-              <button type="button" class="ad-tab-btn" onclick="filterDashboardAds('paused', this)">Dijeda (<span id="dashCountPaused">0</span>)</button>
+              <button type="button" class="ad-tab-btn active" onclick="filterDashboardAds('all', this)">Semua (<span
+                  id="dashCountAll">0</span>)</button>
+              <button type="button" class="ad-tab-btn" onclick="filterDashboardAds('active', this)">Aktif Tayang (<span
+                  id="dashCountActive">0</span>)</button>
+              <button type="button" class="ad-tab-btn" onclick="filterDashboardAds('expiring', this)">Hampir Habis
+                (<span id="dashCountExpiring">0</span>)</button>
+              <button type="button" class="ad-tab-btn" onclick="filterDashboardAds('paused', this)">Dijeda (<span
+                  id="dashCountPaused">0</span>)</button>
             </div>
           </div>
 
@@ -1960,7 +2143,9 @@
           </div>
           <div class="seller-tips-text">
             <h5>Tips Maksimalkan Penjualan Produk Lokal Anda:</h5>
-            <p>Admin toko yang merespons pesan WhatsApp dalam <strong>kurang dari 10 menit</strong> dan menawarkan metode <strong>Bayar di Tempat (COD)</strong> mencatat tingkat keberhasilan closing hingga <strong>3x lebih tinggi</strong>.</p>
+            <p>Admin toko yang merespons pesan WhatsApp dalam <strong>kurang dari 10 menit</strong> dan menawarkan
+              metode <strong>Bayar di Tempat (COD)</strong> mencatat tingkat keberhasilan closing hingga <strong>3x
+                lebih tinggi</strong>.</p>
           </div>
           <button type="button" class="btn-seller-tips-action" onclick="openSellerAdModal('Pro')">
             <span>Pasang Produk Lainnya</span>
@@ -1984,8 +2169,10 @@
       <div class="promo-modal-body">
         <div style="margin-bottom:16px;">
           <span class="badge-screen-pill">Kelola Iklan</span>
-          <h3 style="font-size:20px; font-weight:800; color:var(--on-surface); margin-top:4px;">Edit Detail Iklan Produk</h3>
-          <p style="font-size:13px; color:var(--text-muted); margin-top:2px;">Perubahan akan langsung diperbarui di etalase dan halaman promo instan.</p>
+          <h3 style="font-size:20px; font-weight:800; color:var(--on-surface); margin-top:4px;">Edit Detail Iklan Produk
+          </h3>
+          <p style="font-size:13px; color:var(--text-muted); margin-top:2px;">Perubahan akan langsung diperbarui di
+            etalase dan halaman promo instan.</p>
         </div>
 
         <form onsubmit="handleEditAdFormSubmit(event)">
@@ -2000,8 +2187,10 @@
                 <img id="editAdPhotoPreviewImg" src="" alt="Foto Produk">
               </div>
               <div class="edit-photo-actions">
-                <input type="file" id="editAdFileInput" accept="image/*" style="display:none;" onchange="handleAdFileUpload(event, 'edit')">
-                <button type="button" class="btn-change-photo" onclick="document.getElementById('editAdFileInput').click()">
+                <input type="file" id="editAdFileInput" accept="image/*" style="display:none;"
+                  onchange="handleAdFileUpload(event, 'edit')">
+                <button type="button" class="btn-change-photo"
+                  onclick="document.getElementById('editAdFileInput').click()">
                   <span class="material-symbols-outlined" style="font-size:15px;">upload</span>
                   <span>Ganti Foto dari Galeri</span>
                 </button>
@@ -2022,7 +2211,8 @@
             </div>
             <div class="form-group">
               <label class="form-label">Harga Promo (Rp)</label>
-              <input type="number" id="editAdPromoPrice" class="form-input" required oninput="calculateEditDiscountPreview()">
+              <input type="number" id="editAdPromoPrice" class="form-input" required
+                oninput="calculateEditDiscountPreview()">
             </div>
           </div>
 
@@ -2032,7 +2222,8 @@
               <span id="editDiscountCalcText">Pembeli hemat Rp 76.000</span>
             </div>
             <div class="discount-calc-right">
-              <span class="material-symbols-outlined" style="font-size:15px; color:var(--tertiary-emerald);">verified</span>
+              <span class="material-symbols-outlined"
+                style="font-size:15px; color:var(--tertiary-emerald);">verified</span>
               <span>0% Potongan Komisi</span>
             </div>
           </div>
@@ -2046,8 +2237,10 @@
               <div class="phone-prefix-badge">
                 <span>🇮🇩 +62</span>
               </div>
-              <input type="tel" id="editAdPhone" class="form-input phone-input-smart" required oninput="handlePhoneInputFormat(this, 'editOperatorPill')">
-              <button type="button" class="btn-test-wa" onclick="testSellerWhatsAppNumber('editAdPhone')" title="Uji Coba Tautan WhatsApp">
+              <input type="tel" id="editAdPhone" class="form-input phone-input-smart" required
+                oninput="handlePhoneInputFormat(this, 'editOperatorPill')">
+              <button type="button" class="btn-test-wa" onclick="testSellerWhatsAppNumber('editAdPhone')"
+                title="Uji Coba Tautan WhatsApp">
                 <span class="material-symbols-outlined">send</span>
                 <span>Tes WA</span>
               </button>
@@ -2060,11 +2253,13 @@
           </div>
 
           <div style="display:flex; gap:10px; margin-top:20px;">
-            <button type="submit" class="btn-card-action-wa" style="flex:1; padding:12px; font-size:14px; background:var(--primary);">
+            <button type="submit" class="btn-card-action-wa"
+              style="flex:1; padding:12px; font-size:14px; background:var(--primary);">
               <span class="material-symbols-outlined">save</span>
               <span>Simpan Perubahan</span>
             </button>
-            <button type="button" class="btn-pricing-cta" style="width:auto; padding:12px 18px;" onclick="closeSellerEditModal()">
+            <button type="button" class="btn-pricing-cta" style="width:auto; padding:12px 18px;"
+              onclick="closeSellerEditModal()">
               Batal
             </button>
           </div>
@@ -2079,24 +2274,394 @@
        =================================================================== -->
   <aside class="floating-bottom-bar">
     <div class="floating-bottom-inner">
-      <a href="#hero" class="subnav-link" style="padding:6px 8px; font-size:11px; display:flex; flex-direction:column; align-items:center;">
+      <a href="#hero" class="subnav-link"
+        style="padding:6px 8px; font-size:11px; display:flex; flex-direction:column; align-items:center;">
         <span class="material-symbols-outlined" style="font-size:20px;">home</span>
         <span>Beranda</span>
       </a>
-      <a href="#flashSaleSection" class="subnav-link" style="padding:6px 8px; font-size:11px; display:flex; flex-direction:column; align-items:center;">
+      <a href="#flashSaleSection" class="subnav-link"
+        style="padding:6px 8px; font-size:11px; display:flex; flex-direction:column; align-items:center;">
         <span class="material-symbols-outlined" style="font-size:20px;">flash_on</span>
         <span>Flash Sale</span>
       </a>
-      <button type="button" class="btn-cta-ad" style="padding:7px 12px; font-size:11.5px;" onclick="openSellerAdModal('Pro')">
+      <!-- Mobile Cart Button -->
+      <button type="button" class="subnav-link btn-subnav-cart" onclick="openCartModal()"
+        style="padding:6px 8px; font-size:11px; display:flex; flex-direction:column; align-items:center; background:none; border:none; cursor:pointer; position:relative;">
+        <span class="material-symbols-outlined" style="font-size:20px; color:var(--primary);">shopping_cart</span>
+        <span class="mobile-cart-badge" id="mobileCartBadgeCount" style="display:none;">0</span>
+        <span>Keranjang</span>
+      </button>
+      <button type="button" class="btn-cta-ad" style="padding:7px 12px; font-size:11.5px;"
+        onclick="openSellerAdModal('Pro')">
         <span class="material-symbols-outlined" style="font-size:16px;">add_circle</span>
         <span>Pasang</span>
       </button>
-      <a href="https://wa.me/6285771624349?text=Halo%20CS%20Produk_lokal%20by%20kopia," target="_blank" class="subnav-link" style="padding:6px 8px; font-size:11px; display:flex; flex-direction:column; align-items:center; color:var(--whatsapp-dark);">
+      <a href="https://wa.me/6285771624349?text=Halo%20CS%20Produk_lokal%20by%20kopia," target="_blank"
+        class="subnav-link"
+        style="padding:6px 8px; font-size:11px; display:flex; flex-direction:column; align-items:center; color:var(--whatsapp-dark);">
         <span class="material-symbols-outlined" style="font-size:20px;">chat</span>
         <span>Bantuan WA</span>
       </a>
     </div>
   </aside>
 
+  <!-- ===================================================================
+       MODAL / DRAWER: KERANJANG BELANJA USER (SHOPPING CART)
+       =================================================================== -->
+  <div class="modal-overlay" id="cartDrawerModal" onclick="handleCartOverlayClick(event)">
+    <div class="modal-container cart-drawer-container" role="dialog" aria-modal="true" aria-labelledby="cartDrawerTitle">
+      <div class="cart-drawer-header">
+        <div class="cart-drawer-title-wrap">
+          <div class="cart-drawer-icon">
+            <span class="material-symbols-outlined">shopping_cart</span>
+          </div>
+          <div>
+            <h3 class="cart-drawer-title" id="cartDrawerTitle">Keranjang Belanja</h3>
+            <span class="cart-drawer-subtitle" id="cartDrawerSubtitle">0 produk siap dipesan</span>
+          </div>
+        </div>
+        <button type="button" class="btn-modal-close" onclick="closeCartModal()" aria-label="Tutup Keranjang">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="cart-drawer-body" id="cartDrawerBody">
+        <!-- Rendered dynamically by app.js: empty state or list of cart items -->
+      </div>
+
+      <!-- Sticky Cart Drawer Footer -->
+      <div class="cart-drawer-footer" id="cartDrawerFooter">
+        <div class="cart-summary-card">
+          <div class="cart-summary-row">
+            <span>Total Jumlah Item</span>
+            <span id="cartSummaryTotalQty">0 pcs</span>
+          </div>
+          <div class="cart-summary-row">
+            <span>Subtotal Produk</span>
+            <strong id="cartSummarySubtotal">Rp 0</strong>
+          </div>
+          <div class="cart-summary-row cart-savings-row" id="cartSummarySavingsRow">
+            <span>Total Penghematan Promo</span>
+            <span class="cart-savings-val" id="cartSummarySavings">Rp 0</span>
+          </div>
+          <div class="cart-summary-row cart-total-row">
+            <span>Estimasi Total</span>
+            <strong class="cart-total-price" id="cartSummaryTotalPrice">Rp 0</strong>
+          </div>
+          <span class="cart-summary-note">💡 Ongkos kirim dihitung langsung oleh admin toko sesuai alamat pengiriman Anda.</span>
+        </div>
+
+        <div class="cart-actions-footer">
+          <button type="button" class="btn-cart-checkout" id="btnCartCheckout" onclick="proceedCartToOrderForm()">
+            <span class="material-symbols-outlined">shopping_cart_checkout</span>
+            <span>Lanjut ke Form Pemesanan (Checkout)</span>
+          </button>
+          <button type="button" class="btn-cart-clear" onclick="clearCart()">
+            <span class="material-symbols-outlined">delete_sweep</span>
+            <span>Kosongkan Keranjang</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       MODAL: FORM PEMESANAN / ORDER USER (CUSTOMER CHECKOUT)
+       =================================================================== -->
+  <div class="modal-overlay" id="userOrderModal" onclick="handleOrderOverlayClick(event)">
+    <div class="modal-container order-modal-container" role="dialog" aria-modal="true" aria-labelledby="orderModalTitle">
+      <div class="order-modal-header">
+        <div class="order-modal-title-wrap">
+          <div class="order-modal-icon">
+            <span class="material-symbols-outlined">assignment</span>
+          </div>
+          <div>
+            <h3 class="order-modal-title" id="orderModalTitle">Formulir Pemesanan Produk</h3>
+            <span class="order-modal-subtitle">Isi data pengiriman untuk verifikasi instan via WhatsApp toko</span>
+          </div>
+        </div>
+        <button type="button" class="btn-modal-close" onclick="closeOrderModal()" aria-label="Tutup Form Pemesanan">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="order-modal-body">
+        <!-- 1. Ringkasan Produk yang Dipesan -->
+        <div class="order-items-preview-box">
+          <div class="order-preview-header">
+            <span class="material-symbols-outlined" style="font-size:16px; color:var(--primary);">shopping_bag</span>
+            <strong>Rincian Produk Pesanan:</strong>
+          </div>
+          <div class="order-preview-list" id="orderPreviewList">
+            <!-- Populated dynamically by app.js -->
+          </div>
+          <div class="order-preview-total-row">
+            <span>Total Tagihan Produk:</span>
+            <strong class="order-preview-total-val" id="orderPreviewTotalVal">Rp 0</strong>
+          </div>
+        </div>
+
+        <!-- 2. Form Data Pembeli -->
+        <form id="customerOrderForm" onsubmit="handleCustomerOrderSubmit(event)">
+          <div class="order-section-divider">
+            <span class="material-symbols-outlined">person</span>
+            <span>Informasi Penerima Paket</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span>Nama Lengkap Penerima</span>
+              <span class="required-star">*</span>
+            </label>
+            <input type="text" id="orderCustomerName" class="form-input" placeholder="Contoh: Siti Rahmawati" required>
+          </div>
+
+          <div class="form-group">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+              <label class="form-label" style="margin:0;">
+                <span>Nomor WhatsApp Aktif</span>
+                <span class="required-star">*</span>
+              </label>
+              <span class="form-micro-badge" style="font-size:11px; background:#ecfdf5; color:#059669; padding:2px 8px; border-radius:4px; font-weight:700;">Untuk draf invoice</span>
+            </div>
+            <div class="phone-smart-input-group">
+              <div class="phone-prefix-badge">
+                <span>🇮🇩 +62</span>
+              </div>
+              <input type="tel" id="orderCustomerPhone" class="form-input phone-input-smart" placeholder="Contoh: 0812-3456-7890" required>
+            </div>
+          </div>
+
+          <div class="order-section-divider">
+            <span class="material-symbols-outlined">local_shipping</span>
+            <span>Alamat Lengkap Pengiriman</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span>Alamat Lengkap (Nama Jalan, No. Rumah, RT/RW, Patokan)</span>
+              <span class="required-star">*</span>
+            </label>
+            <textarea id="orderCustomerAddress" class="form-textarea" rows="2" placeholder="Contoh: Jl. Anggrek No. 12 RT 04/RW 02, Kel. Dago, Kec. Coblong (Depan Masjid Al-Ikhlas)" required></textarea>
+          </div>
+
+          <div class="form-grid-2">
+            <div class="form-group">
+              <label class="form-label">
+                <span>Kota / Kabupaten &amp; Provinsi</span>
+                <span class="required-star">*</span>
+              </label>
+              <input type="text" id="orderCustomerCity" class="form-input" placeholder="Contoh: Bandung, Jawa Barat" required>
+            </div>
+            <div class="form-group">
+              <label class="form-label">
+                <span>Kode Pos</span>
+                <span class="required-star">*</span>
+              </label>
+              <input type="text" id="orderCustomerPostal" class="form-input" placeholder="Contoh: 40135" required>
+            </div>
+          </div>
+
+          <div class="order-section-divider">
+            <span class="material-symbols-outlined">account_balance</span>
+            <span>Pilihan Bank Pembayaran (Transfer Langsung ke Toko)</span>
+          </div>
+
+          <div class="form-group">
+            <div class="payment-bank-selector" id="paymentBankSelector">
+              <label class="payment-bank-chip active" onclick="selectPaymentBank(this)">
+                <input type="radio" name="orderBankPayment" value="BCA" checked style="display:none;">
+                <span>Bank BCA</span>
+              </label>
+              <label class="payment-bank-chip" onclick="selectPaymentBank(this)">
+                <input type="radio" name="orderBankPayment" value="Mandiri" style="display:none;">
+                <span>Bank Mandiri</span>
+              </label>
+              <label class="payment-bank-chip" onclick="selectPaymentBank(this)">
+                <input type="radio" name="orderBankPayment" value="BRI" style="display:none;">
+                <span>Bank BRI</span>
+              </label>
+              <label class="payment-bank-chip" onclick="selectPaymentBank(this)">
+                <input type="radio" name="orderBankPayment" value="BSI" style="display:none;">
+                <span>Bank BSI (Syariah)</span>
+              </label>
+              <label class="payment-bank-chip" onclick="selectPaymentBank(this)">
+                <input type="radio" name="orderBankPayment" value="QRIS" style="display:none;">
+                <span>QRIS / E-Wallet</span>
+              </label>
+            </div>
+            <div class="payment-security-note">
+              <span class="material-symbols-outlined" style="font-size:16px; color:var(--tertiary-emerald);">shield</span>
+              <span>100% Bebas Biaya Potongan Admin. Rekening resmi toko akan dikirim otomatis ke WhatsApp.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <span>Catatan Tambahan untuk Penjual</span>
+              <span class="required-star">*</span>
+            </label>
+            <textarea id="orderCustomerNotes" class="form-textarea" rows="2" placeholder="Contoh: Tolong packing bubble wrap tebal, kirim hari ini ya min (atau tulis 'Tidak ada' jika tanpa catatan khusus)" required></textarea>
+          </div>
+
+          <!-- Submit Order CTA -->
+          <div class="order-submit-box">
+            <div class="order-submit-guarantee">
+              <span class="material-symbols-outlined">verified</span>
+              <span>Pesanan Anda otomatis diteruskan ke WhatsApp resmi toko untuk konfirmasi pembayaran &amp; pengiriman.</span>
+            </div>
+            <button type="submit" class="btn-submit-order-wa" id="btnSubmitCustomerOrder">
+              <div class="btn-wa-icon-wrap" style="background:#fff; color:var(--whatsapp-dark); width:38px; height:38px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                <span class="material-symbols-outlined" style="font-size:22px;">send</span>
+              </div>
+              <div class="btn-action-text-group" style="flex:1;">
+                <span class="btn-action-main" style="display:block; font-size:15px; font-weight:800;">Kirim Pesanan via WhatsApp Sekarang</span>
+                <span class="btn-action-sub" style="display:block; font-size:11.5px; opacity:0.9;">Draf invoice &amp; alamat otomatis terkirim ke admin toko</span>
+              </div>
+              <span class="material-symbols-outlined btn-arrow-icon">arrow_forward</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       MODAL DIALOG: PERINGATAN DATA FORM ORDER BELUM LENGKAP
+       =================================================================== -->
+  <div class="modal-overlay" id="orderValidationDialogModal" style="z-index: 2600;" onclick="handleValidationDialogOverlayClick(event)">
+    <div class="modal-container validation-dialog-container" role="alertdialog" aria-modal="true" aria-labelledby="valDialogTitle">
+      <div class="validation-dialog-body">
+        <div class="val-dialog-icon-wrap">
+          <span class="material-symbols-outlined">warning</span>
+        </div>
+        <h3 class="val-dialog-title" id="valDialogTitle">Data Pemesanan Belum Lengkap</h3>
+        <p class="val-dialog-desc">
+          Semua data pemesanan <strong>wajib diisi</strong> dengan benar agar rincian pesanan &amp; alamat Anda dapat diteruskan secara akurat ke WhatsApp penjual:
+        </p>
+        <div class="val-dialog-missing-card">
+          <span class="val-missing-header">Kolom yang belum diisi / belum valid:</span>
+          <ul class="val-dialog-missing-list" id="valDialogMissingList">
+            <!-- Populated dynamically by app.js -->
+          </ul>
+        </div>
+        <div class="val-dialog-actions">
+          <button type="button" class="btn-val-dialog-ok" onclick="closeOrderValidationDialog()">
+            <span class="material-symbols-outlined">edit_square</span>
+            <span>OK, Saya Lengkapi Sekarang</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       FLOATING CARD: NOTIFIKASI PESANAN AKTIF SAAT USER BUKA WEB LAGI
+       =================================================================== -->
+  <aside class="recent-order-floating-banner" id="recentOrderFloatingBanner" style="display:none;" aria-live="polite">
+    <div class="recent-order-banner-content">
+      <div class="recent-order-icon-wrap">
+        <span class="material-symbols-outlined">receipt_long</span>
+      </div>
+      <div class="recent-order-text-wrap">
+        <div class="recent-order-title-row">
+          <span class="recent-order-badge"><span class="pulse-dot-small"></span> Invoice Aktif</span>
+          <span class="recent-order-id" id="bannerOrderId">#KPA-...</span>
+        </div>
+        <p class="recent-order-desc" id="bannerOrderDesc">
+          Pesanan Anda tersimpan &amp; siap diteruskan ke WhatsApp toko.
+        </p>
+      </div>
+    </div>
+    <div class="recent-order-actions">
+      <button type="button" class="btn-banner-view-invoice" onclick="openOrderInvoiceModal()">
+        <span class="material-symbols-outlined" style="font-size:16px;">visibility</span>
+        <span>Lihat Draf Invoice</span>
+      </button>
+      <button type="button" class="btn-banner-close" onclick="dismissOrderBanner()" title="Tutup Notifikasi" aria-label="Tutup">
+        <span class="material-symbols-outlined" style="font-size:16px;">close</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- ===================================================================
+       MODAL: DRAF INVOICE TERSTRUKTUR DIGITAL (STRUK RESMI PESANAN)
+       =================================================================== -->
+  <div class="modal-overlay" id="orderInvoiceModal" style="z-index: 2400;" onclick="handleInvoiceOverlayClick(event)">
+    <div class="modal-container invoice-modal-container" role="dialog" aria-modal="true" aria-labelledby="invoiceModalTitle">
+      
+      <!-- Topbar Header -->
+      <div class="invoice-modal-header">
+        <div class="invoice-header-title-wrap">
+          <div class="invoice-icon-wrap">
+            <span class="material-symbols-outlined">receipt_long</span>
+          </div>
+          <div>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <h3 class="invoice-modal-title" id="invoiceModalTitle">Draf Invoice Pesanan</h3>
+              <span class="invoice-status-pill" id="invoiceStatusPill"><span class="pulse-dot-small"></span> Menunggu Transfer</span>
+            </div>
+            <span class="invoice-modal-subtitle">Tersimpan otomatis &bull; Siap dilanjutkan ke WhatsApp penjual</span>
+          </div>
+        </div>
+        <button type="button" class="btn-modal-close" onclick="closeOrderInvoiceModal()" aria-label="Tutup Invoice">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <!-- Printable Invoice Sheet -->
+      <div class="invoice-modal-body" id="invoiceModalBody">
+        <!-- Rendered dynamically by app.js -->
+      </div>
+
+      <!-- Sticky Footer Actions -->
+      <div class="invoice-modal-footer">
+        <div class="invoice-footer-left">
+          <button type="button" class="btn-invoice-copy" onclick="copyInvoiceWhatsAppDraft()">
+            <span class="material-symbols-outlined">content_copy</span>
+            <span>Salin Draf WA</span>
+          </button>
+          <button type="button" class="btn-invoice-print" onclick="window.print()">
+            <span class="material-symbols-outlined">print</span>
+            <span>Cetak Invoice</span>
+          </button>
+          <button type="button" class="btn-invoice-archive" onclick="clearLastOrder()">
+            <span class="material-symbols-outlined">check_circle</span>
+            <span>Tandai Selesai</span>
+          </button>
+        </div>
+        <div class="invoice-footer-right">
+          <a href="#" id="invoiceWaDirectBtn" target="_blank" rel="noopener noreferrer" class="btn-invoice-wa">
+            <span class="material-symbols-outlined">chat</span>
+            <span>Kirim via WhatsApp Toko</span>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===================================================================
+       FLOATING WHATSAPP ADMIN PILL (MATCHING SCREENSHOT 2)
+       =================================================================== -->
+  <a href="https://wa.me/6285771624349?text=Halo%20Admin%20Produk_lokal%20by%20kopia,%20saya%20ingin%20bertanya%20tentang%20produk."
+    target="_blank" rel="noopener noreferrer" class="floating-wa-admin-pill" id="floatingWaAdminBtn"
+    aria-label="Chat WhatsApp Admin">
+    <div class="floating-wa-admin-icon">
+      <svg viewBox="0 0 24 24" width="22" height="22" fill="#00a884">
+        <path
+          d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.816 9.816 0 0 0 12.04 2zm.01 17.79c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a7.94 7.94 0 0 1-1.22-4.22c0-4.41 3.59-8 8-8 2.14 0 4.15.83 5.66 2.34 1.51 1.51 2.34 3.52 2.34 5.66 0 4.41-3.59 7.92-8.01 7.92zm4.39-5.94c-.24-.12-1.42-.7-1.64-.78-.22-.08-.38-.12-.54.12-.16.24-.62.78-.76.94-.14.16-.28.18-.52.06-.24-.12-1.02-.38-1.94-1.2-.72-.64-1.2-1.43-1.34-1.67-.14-.24-.02-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.54-1.3-.74-1.78-.2-.47-.4-.41-.55-.42-.14-.01-.3-.01-.46-.01s-.42.06-.64.3c-.22.24-.84.82-.84 2s.86 2.32.98 2.48c.12.16 1.69 2.58 4.1 3.62.57.25 1.02.4 1.37.51.58.18 1.1.16 1.52.09.46-.07 1.42-.58 1.62-1.14.2-.56.2-1.04.14-1.14-.06-.1-.22-.16-.46-.28z" />
+      </svg>
+    </div>
+    <div class="floating-wa-admin-content">
+      <span class="floating-wa-admin-title">Chat WhatsApp Admin</span>
+      <span class="floating-wa-admin-status">
+        <span class="floating-wa-dot"></span>
+        Online &bull; Fast Response
+      </span>
+    </div>
+  </a>
+
 </body>
+
 </html>

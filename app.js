@@ -85,6 +85,35 @@ function initFirestoreSync() {
   }, (err) => {
     console.warn('Firestore seller_ads listener:', err.message);
   });
+
+  // 3. Realtime Smart Order Memory Sync from Cloud Firestore
+  syncSavedOrderFromFirestore();
+}
+
+// 3. Sync Last Order from Cloud Firestore (Smart Order Memory)
+function syncSavedOrderFromFirestore() {
+  if (!db) return;
+  try {
+    const raw = localStorage.getItem('kopia_last_order');
+    if (!raw) return;
+    const localOrder = JSON.parse(raw);
+    if (!localOrder || !localOrder.orderId) return;
+
+    db.collection('orders').doc(localOrder.orderId).get().then(doc => {
+      if (doc.exists) {
+        const cloudData = doc.data();
+        if (cloudData.status && cloudData.status !== localOrder.status) {
+          localOrder.status = cloudData.status;
+          try {
+            localStorage.setItem('kopia_last_order', JSON.stringify(localOrder));
+          } catch (e) {}
+          if (typeof checkAndRenderSavedInvoiceBanner === 'function') {
+            checkAndRenderSavedInvoiceBanner();
+          }
+        }
+      }
+    }).catch(err => console.warn('Firestore fetch order notice:', err.message));
+  } catch (e) {}
 }
 
 function syncProductToFirestore(product) {
@@ -111,6 +140,74 @@ function logWhatsAppLeadToFirestore(productId, sellerName) {
   }).catch(() => {});
 }
 
+// Smart Order Memory: Simpan data pemesanan terstruktur secara persisten ke koleksi 'orders' di Cloud Firestore
+function syncOrderToFirestore(orderData) {
+  if (!orderData || !orderData.orderId) return;
+
+  const performSave = () => {
+    if (!db) {
+      console.warn('Firestore db belum siap untuk menyimpan pesanan.');
+      return;
+    }
+
+    const cleanItems = (orderData.items || []).map(item => ({
+      id: item.id || '',
+      title: item.title || '',
+      price: Number(item.price) || 0,
+      originalPrice: Number(item.originalPrice) || 0,
+      variant: item.variant || '-',
+      quantity: Number(item.quantity) || 1,
+      seller: item.seller || 'Produk Lokal Kopia',
+      location: item.location || 'Indonesia'
+    }));
+
+    const firestorePayload = {
+      orderId: orderData.orderId,
+      customerName: orderData.customerName || '',
+      customerPhone: orderData.customerPhone || '',
+      address: orderData.address || '',
+      city: orderData.city || '',
+      postal: orderData.postal || '',
+      notes: orderData.notes || '',
+      bankPayment: orderData.bankPayment || 'BCA',
+      items: cleanItems,
+      totalAmount: Number(orderData.totalAmount) || 0,
+      totalSavings: Number(orderData.totalSavings) || 0,
+      sellerPhone: orderData.sellerPhone || '6285771624349',
+      status: orderData.status || 'pending_payment',
+      createdAt: (typeof firebase !== 'undefined' && firebase.firestore && firebase.firestore.FieldValue)
+        ? firebase.firestore.FieldValue.serverTimestamp()
+        : new Date(),
+      createdAtStr: orderData.date || new Date().toISOString(),
+      dateFormatted: orderData.dateFormatted || new Date().toLocaleString('id-ID'),
+      platform: 'web_direct_commerce'
+    };
+
+    db.collection('orders').doc(orderData.orderId).set(firestorePayload, { merge: true })
+      .then(() => {
+        console.log(`🔥 [Firestore] Pesanan #${orderData.orderId} sukses tersimpan di koleksi 'orders'!`);
+      })
+      .catch((err) => {
+        console.warn('⚠️ Gagal menyimpan pesanan ke Firestore:', err);
+      });
+  };
+
+  if (db && isFirebaseReady) {
+    performSave();
+  } else {
+    let retries = 0;
+    const interval = setInterval(() => {
+      retries++;
+      if (db && isFirebaseReady) {
+        clearInterval(interval);
+        performSave();
+      } else if (retries >= 6) {
+        clearInterval(interval);
+      }
+    }, 500);
+  }
+}
+
 // Inisialisasi Firebase langsung saat script dieksekusi dan backup saat window load
 initFirebase();
 window.addEventListener('load', () => {
@@ -135,12 +232,12 @@ const FLASH_SALE_PRODUCTS = [
     rating: 5.0,
     reviews: 184,
     badge: 'Diskon 46%',
-    usp: ['Bisa COD', 'Kurasi Kopia', 'Fresh Roasted'],
+    usp: ['Transfer Bank', 'Kurasi Kopia', 'Fresh Roasted'],
     variants: ['Biji Utuh (Roast Beans)', 'Bubuk Halus (Espresso/Tubruk)', 'Bubuk Kasar (Manual Brew/V60)'],
     soldPercent: 88,
     stockLeft: 4,
     img: 'https://images.unsplash.com/photo-1559056199-641a0ac8b55e?auto=format&fit=crop&w=700&q=80',
-    reviewQuote: 'Aroma floral dan acidity-nya seimbang banget! Chat WA admin ramah banget, kirim ke Jakarta 2 hari sampai, COD lancar.',
+    reviewQuote: 'Aroma floral dan acidity-nya seimbang banget! Chat WA admin ramah banget, kirim ke Jakarta 2 hari sampai, packing rapi.',
     reviewerName: 'Bambang Wicaksono • Jakarta Selatan',
     marketplaceName: 'Shopee Official Store Kopia',
     marketplaceUrl: 'https://shopee.co.id',
@@ -160,7 +257,7 @@ const FLASH_SALE_PRODUCTS = [
     rating: 4.9,
     reviews: 142,
     badge: 'Diskon 48%',
-    usp: ['Bisa COD', 'Bahan Katun Linen', 'Garansi Retur Size'],
+    usp: ['Transfer Bank', 'Bahan Katun Linen', 'Garansi Retur Size'],
     variants: ['Size M (Lebar 52cm)', 'Size L (Lebar 55cm)', 'Size XL (Lebar 58cm)'],
     soldPercent: 92,
     stockLeft: 3,
@@ -185,7 +282,7 @@ const FLASH_SALE_PRODUCTS = [
     rating: 5.0,
     reviews: 236,
     badge: 'Diskon 47%',
-    usp: ['Bisa COD', 'BPOM NA1823010', 'Non-Alkohol'],
+    usp: ['Transfer Bank', 'BPOM NA1823010', 'Non-Alkohol'],
     variants: ['Kemasan 20ml Travel Size', 'Kemasan 50ml Reguler Hemat'],
     soldPercent: 79,
     stockLeft: 8,
@@ -210,7 +307,7 @@ const FLASH_SALE_PRODUCTS = [
     rating: 4.9,
     reviews: 110,
     badge: 'Diskon 46%',
-    usp: ['Bisa COD', 'Garansi Kulit Asli', '8 Slot Kartu'],
+    usp: ['Transfer Bank', 'Garansi Kulit Asli', '8 Slot Kartu'],
     variants: ['Warna Cokelat Havana Klasik', 'Warna Hitam Vintage'],
     soldPercent: 68,
     stockLeft: 12,
@@ -669,7 +766,7 @@ function renderFlashSale() {
           <div class="price-promo">${formatRupiah(p.promoPrice)}</div>
         </div>
         <div class="product-badges-row">
-          <span class="mini-badge emerald">Bisa COD</span>
+          <span class="mini-badge emerald">Transfer Bank</span>
           <span class="mini-badge">${p.usp[1] || 'Kurasi Kopia'}</span>
         </div>
         <div class="stock-progress-wrap">
@@ -682,13 +779,13 @@ function renderFlashSale() {
           </div>
         </div>
         <div class="product-card-actions">
-          <button type="button" class="btn-card-action-wa" onclick="openWhatsAppCheckout('${p.title}', '${formatRupiah(p.promoPrice)}', '${p.seller}', '${p.phone}', '${p.variants ? p.variants[0] : ''}')">
-            <span class="material-symbols-outlined" style="font-size:16px;">chat</span>
-            <span>Chat WA</span>
+          <button type="button" class="btn-card-add-cart" onclick="addCardProductToCart('${p.id}')" title="Masukkan ke Keranjang Belanja">
+            <span class="material-symbols-outlined" style="font-size:15px;">add_shopping_cart</span>
+            <span>+ Keranjang</span>
           </button>
-          <button type="button" class="btn-card-action-detail" onclick="openProductDetailModal('${p.id}', true)">
-            <span class="material-symbols-outlined" style="font-size:16px;">visibility</span>
-            <span>Lihat Promo</span>
+          <button type="button" class="btn-card-buy-now" onclick="buyCardProductNow('${p.id}')" title="Beli Langsung Sekarang">
+            <span class="material-symbols-outlined" style="font-size:15px;">shopping_bag</span>
+            <span>Beli Sekarang</span>
           </button>
         </div>
       </div>
@@ -865,24 +962,43 @@ function renderCatalog() {
           <div class="price-promo">${formatRupiah(p.promoPrice)}</div>
         </div>
         <div class="product-badges-row">
-          ${p.cod ? '<span class="mini-badge emerald">Bisa COD</span>' : ''}
+          <span class="mini-badge emerald">Transfer Bank</span>
           ${p.freeShipping ? '<span class="mini-badge">Gratis Ongkir</span>' : ''}
           <span class="mini-badge">Respon ${p.responseTime}</span>
         </div>
         <div class="product-card-actions">
-          <button type="button" class="btn-card-action-wa" onclick="openWhatsAppCheckout('${p.title}', '${formatRupiah(p.promoPrice)}', '${p.seller}', '${p.phone}', '${p.variants ? p.variants[0] : ''}')">
-            <span class="material-symbols-outlined" style="font-size:16px;">chat</span>
-            <span>Chat WA</span>
+          <button type="button" class="btn-card-add-cart" onclick="addCardProductToCart('${p.id}')" title="Masukkan ke Keranjang Belanja">
+            <span class="material-symbols-outlined" style="font-size:15px;">add_shopping_cart</span>
+            <span>+ Keranjang</span>
           </button>
-          <button type="button" class="btn-card-action-detail" onclick="openProductDetailModal('${p.id}', false)">
-            <span class="material-symbols-outlined" style="font-size:16px;">visibility</span>
-            <span>Lihat Promo</span>
+          <button type="button" class="btn-card-buy-now" onclick="buyCardProductNow('${p.id}')" title="Beli Langsung Sekarang">
+            <span class="material-symbols-outlined" style="font-size:15px;">shopping_bag</span>
+            <span>Beli Sekarang</span>
           </button>
         </div>
       </div>
     </article>
   `).join('');
 }
+
+// ===================================================================
+// SHOPPING CART (KERANJANG BELANJA) & ORDER STATE
+// ===================================================================
+let activeModalQuantity = 1;
+
+let CART = [];
+try {
+  const savedCart = localStorage.getItem('kopia_cart');
+  if (savedCart) {
+    CART = JSON.parse(savedCart);
+    if (!Array.isArray(CART)) CART = [];
+  }
+} catch (e) {
+  CART = [];
+}
+
+let activeCheckoutItems = [];
+let activeCheckoutSource = 'product'; // 'product' or 'cart'
 
 // ===================================================================
 // QUICK PRODUCT DETAIL MODAL (HALAMAN PRODUK CEPAT & DIRECT PURCHASE)
@@ -897,9 +1013,14 @@ function openProductDetailModal(productId, isFlashSale = false) {
 
   activeModalProduct = product;
   activeSelectedVariant = (product.variants && product.variants.length > 0) ? product.variants[0] : 'Standar';
+  activeModalQuantity = 1;
 
   const modal = document.getElementById('quickDetailModal');
   if (!modal) return;
+
+  const qtyInput = document.getElementById('modalDetailQty');
+  if (qtyInput) qtyInput.value = '1';
+  updateModalSubtotal();
 
   // 1. Image & Discount Tag
   const imgEl = document.getElementById('modalDetailImg');
@@ -999,7 +1120,7 @@ function generateProductWhatsAppUrl(product, variant) {
   const message = `Halo Admin *${product.seller}*, saya menemukan promo produk ini di *Produk_lokal by kopia*:\n\n` +
     `🛍️ *Produk:* ${product.title}\n` +
     `💰 *Harga Promo:* ${formatRupiah(product.promoPrice)} (Diskon ${product.discount}%, Hemat ${savings})${variantText}\n` +
-    `🚚 *Metode:* Pengiriman langsung / Bisa Bayar di Tempat (COD)\n` +
+    `🚚 *Metode:* Pengiriman langsung (Pembayaran via Transfer Bank)\n` +
     `🛡️ *Garansi:* 100% Produk Original & Bebas Saldo Tertahan\n\n` +
     `Apakah stok promo masih tersedia dan bisa dikirim ke alamat saya? Terima kasih!`;
 
@@ -1039,6 +1160,7 @@ function selectModalVariant(variantName, chipEl) {
 
   // Update URL wa.me secara instan di sisi frontend
   updateModalWhatsAppLink();
+  updateModalSubtotal();
 
   showToast(`Varian dipilih: ${variantName}`);
 }
@@ -1068,7 +1190,7 @@ function openWhatsAppCheckout(title, price, seller, phone, variant) {
   const message = `Halo Admin *${seller}*, saya melihat promo produk ini di *Produk_lokal by kopia*:\n\n` +
     `🛍️ *Produk:* ${title}\n` +
     `💰 *Harga Promo:* ${price}${selectedVar}\n` +
-    `🚚 *Metode:* Pengiriman langsung / Bisa Bayar di Tempat (COD)\n` +
+    `🚚 *Metode:* Pengiriman langsung (Pembayaran via Transfer Bank)\n` +
     `🛡️ *Garansi:* 100% Produk Original\n\n` +
     `Apakah stok promo masih tersedia dan bisa dikirim ke alamat saya? Terima kasih!`;
 
@@ -1132,6 +1254,1069 @@ function shareCurrentProduct() {
     showToast('Link siap dibagikan.');
   }
 }
+
+// ===================================================================
+// FITUR 1: JUMLAH PESANAN & SUB-TOTAL PREVIEW MODAL DETAIL PRODUK
+// ===================================================================
+function changeModalQuantity(delta) {
+  const inputEl = document.getElementById('modalDetailQty');
+  if (!inputEl) return;
+  let currentVal = parseInt(inputEl.value, 10) || 1;
+  currentVal += delta;
+  if (currentVal < 1) currentVal = 1;
+  if (currentVal > 99) currentVal = 99;
+  inputEl.value = currentVal;
+  activeModalQuantity = currentVal;
+  updateModalSubtotal();
+}
+
+function validateModalQuantity(inputEl) {
+  if (!inputEl) return;
+  let val = parseInt(inputEl.value, 10);
+  if (isNaN(val) || val < 1) val = 1;
+  if (val > 99) val = 99;
+  inputEl.value = val;
+  activeModalQuantity = val;
+  updateModalSubtotal();
+}
+
+function updateModalSubtotal() {
+  if (!activeModalProduct) return;
+  const inputEl = document.getElementById('modalDetailQty');
+  const qty = inputEl ? (parseInt(inputEl.value, 10) || 1) : (activeModalQuantity || 1);
+  activeModalQuantity = qty;
+
+  const subtotalEl = document.getElementById('modalSubtotalPreview');
+  if (subtotalEl) {
+    const total = activeModalProduct.promoPrice * qty;
+    subtotalEl.textContent = formatRupiah(total);
+  }
+}
+
+// ===================================================================
+// FITUR 2: MANAJEMEN KERANJANG BELANJA (SHOPPING CART)
+// ===================================================================
+function saveCart() {
+  try {
+    localStorage.setItem('kopia_cart', JSON.stringify(CART));
+  } catch (e) {
+    console.warn('Gagal menyimpan keranjang belanja:', e);
+  }
+  updateCartBadges();
+}
+
+function getCartCount() {
+  return CART.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
+}
+
+function updateCartBadges() {
+  const count = getCartCount();
+  const desktopBadge = document.getElementById('cartBadgeCount');
+  if (desktopBadge) {
+    desktopBadge.textContent = count;
+    desktopBadge.style.display = count > 0 ? 'inline-flex' : 'none';
+  }
+  const mobileBadge = document.getElementById('mobileCartBadgeCount');
+  if (mobileBadge) {
+    mobileBadge.textContent = count;
+    mobileBadge.style.display = count > 0 ? 'inline-flex' : 'none';
+  }
+  const drawerBadge = document.getElementById('drawerCartBadgeCount');
+  if (drawerBadge) {
+    drawerBadge.textContent = count;
+    drawerBadge.style.display = count > 0 ? 'inline-flex' : 'none';
+  }
+}
+
+function addActiveProductToCart() {
+  if (!activeModalProduct) {
+    showToast('Pilih produk terlebih dahulu.');
+    return;
+  }
+  const p = activeModalProduct;
+  const variant = activeSelectedVariant || (p.variants && p.variants[0]) || 'Standar';
+  const qtyInput = document.getElementById('modalDetailQty');
+  const qty = qtyInput ? (parseInt(qtyInput.value, 10) || 1) : 1;
+
+  const existingIndex = CART.findIndex(item => item.productId === p.id && item.variant === variant);
+  if (existingIndex > -1) {
+    CART[existingIndex].quantity += qty;
+  } else {
+    CART.push({
+      cartItemId: 'cart_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+      productId: p.id,
+      title: p.title,
+      price: p.promoPrice,
+      originalPrice: p.originalPrice || p.promoPrice,
+      img: p.img,
+      seller: p.seller,
+      location: p.location,
+      phone: p.phone || '6285771624349',
+      variant: variant,
+      quantity: qty
+    });
+  }
+
+  saveCart();
+  showToast(`✅ ${qty}x "${p.title.slice(0, 24)}..." dimasukkan ke keranjang!`);
+
+  // Visual bump feedback on header cart button
+  const headerCartBtn = document.getElementById('btnHeaderCart');
+  if (headerCartBtn) {
+    headerCartBtn.style.transform = 'scale(1.12)';
+    setTimeout(() => {
+      headerCartBtn.style.transform = '';
+    }, 250);
+  }
+}
+
+function addCardProductToCart(productId) {
+  const allProducts = [...FLASH_SALE_PRODUCTS, ...CATALOG_PRODUCTS];
+  const p = allProducts.find(item => item.id === productId);
+  if (!p) {
+    showToast('Produk tidak ditemukan.');
+    return;
+  }
+
+  // Jika produk punya lebih dari 1 varian, buka detail modal agar pembeli bisa pilih varian
+  if (p.variants && p.variants.length > 1) {
+    openProductDetailModal(productId, productId.startsWith('fs'));
+    showToast(`Silakan pilih varian "${p.title.slice(0, 24)}..." lalu klik Masukkan Keranjang`);
+    return;
+  }
+
+  const variant = (p.variants && p.variants[0]) || 'Standar';
+  const existingIndex = CART.findIndex(item => item.productId === p.id && item.variant === variant);
+  if (existingIndex > -1) {
+    CART[existingIndex].quantity += 1;
+  } else {
+    CART.push({
+      cartItemId: 'cart_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+      productId: p.id,
+      title: p.title,
+      price: p.promoPrice,
+      originalPrice: p.originalPrice || p.promoPrice,
+      img: p.img,
+      seller: p.seller,
+      location: p.location,
+      phone: p.phone || '6285771624349',
+      variant: variant,
+      quantity: 1
+    });
+  }
+
+  saveCart();
+  showToast(`🛒 "${p.title.slice(0, 25)}..." dimasukkan ke keranjang!`);
+
+  const headerCartBtn = document.getElementById('btnHeaderCart');
+  if (headerCartBtn) {
+    headerCartBtn.style.transform = 'scale(1.15)';
+    setTimeout(() => headerCartBtn.style.transform = '', 250);
+  }
+}
+
+function buyCardProductNow(productId) {
+  const allProducts = [...FLASH_SALE_PRODUCTS, ...CATALOG_PRODUCTS];
+  const p = allProducts.find(item => item.id === productId);
+  if (!p) {
+    showToast('Produk tidak ditemukan.');
+    return;
+  }
+
+  // Jika produk memiliki lebih dari 1 varian, buka modal detail agar pembeli bisa pilih varian
+  if (p.variants && p.variants.length > 1) {
+    openProductDetailModal(productId, productId.startsWith('fs'));
+    showToast(`Silakan pilih varian "${p.title.slice(0, 24)}..." lalu klik Pesan Sekarang`);
+    return;
+  }
+
+  const variant = (p.variants && p.variants[0]) || 'Standar';
+  const singleItem = [{
+    cartItemId: 'direct_' + p.id + '_' + Date.now(),
+    productId: p.id,
+    title: p.title,
+    price: p.promoPrice,
+    originalPrice: p.originalPrice || p.promoPrice,
+    img: p.img,
+    seller: p.seller,
+    location: p.location,
+    phone: p.phone || '6285771624349',
+    variant: variant,
+    quantity: 1
+  }];
+
+  openOrderForm(singleItem, 'product');
+}
+
+function openCartModal() {
+  const modal = document.getElementById('cartDrawerModal');
+  if (!modal) return;
+  renderCartDrawer();
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCartModal() {
+  const modal = document.getElementById('cartDrawerModal');
+  if (modal) modal.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function handleCartOverlayClick(e) {
+  if (e.target && e.target.id === 'cartDrawerModal') {
+    closeCartModal();
+  }
+}
+
+function renderCartDrawer() {
+  const bodyEl = document.getElementById('cartDrawerBody');
+  const footerEl = document.getElementById('cartDrawerFooter');
+  const subtitleEl = document.getElementById('cartDrawerSubtitle');
+  if (!bodyEl) return;
+
+  const totalCount = getCartCount();
+  if (subtitleEl) {
+    subtitleEl.textContent = `${CART.length} produk (${totalCount} pcs) siap dipesan`;
+  }
+
+  if (CART.length === 0) {
+    bodyEl.innerHTML = `
+      <div class="cart-empty-box">
+        <span class="material-symbols-outlined cart-empty-icon">remove_shopping_cart</span>
+        <h4 class="cart-empty-title">Keranjang Belanja Masih Kosong</h4>
+        <p class="cart-empty-desc">
+          Yuk jelajahi produk lokal pilihan nusantara dengan harga promo eksklusif langsung dari produsen lokal!
+        </p>
+        <button type="button" class="btn-cart-shop-now" onclick="closeCartModal(); window.location.hash='#catalogSection';">
+          <span>Mulai Belanja Produk Lokal</span>
+          <span class="material-symbols-outlined" style="font-size:16px;">arrow_forward</span>
+        </button>
+      </div>
+    `;
+    if (footerEl) footerEl.style.display = 'none';
+    return;
+  }
+
+  if (footerEl) footerEl.style.display = 'block';
+
+  let grandSubtotal = 0;
+  let grandSavings = 0;
+
+  const itemsHtml = CART.map(item => {
+    const itemSubtotal = item.price * item.quantity;
+    grandSubtotal += itemSubtotal;
+    if (item.originalPrice && item.originalPrice > item.price) {
+      grandSavings += (item.originalPrice - item.price) * item.quantity;
+    }
+
+    return `
+      <div class="cart-item-card">
+        <img src="${item.img}" class="cart-item-img" alt="${item.title}">
+        <div class="cart-item-details">
+          <h5 class="cart-item-title" title="${item.title}">${item.title}</h5>
+          <span class="cart-item-variant">Varian: ${item.variant}</span>
+          <div class="cart-item-price-row">
+            <span class="cart-item-price">${formatRupiah(item.price)}</span>
+            <div class="cart-item-actions">
+              <div class="cart-item-stepper">
+                <button type="button" class="cart-item-btn-step" onclick="changeCartItemQty('${item.cartItemId}', -1)" aria-label="Kurangi">
+                  <span class="material-symbols-outlined" style="font-size:14px;">remove</span>
+                </button>
+                <span class="cart-item-qty-val">${item.quantity}</span>
+                <button type="button" class="cart-item-btn-step" onclick="changeCartItemQty('${item.cartItemId}', 1)" aria-label="Tambah">
+                  <span class="material-symbols-outlined" style="font-size:14px;">add</span>
+                </button>
+              </div>
+              <button type="button" class="btn-cart-item-delete" onclick="removeCartItem('${item.cartItemId}')" title="Hapus dari keranjang" aria-label="Hapus">
+                <span class="material-symbols-outlined" style="font-size:18px;">delete</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  bodyEl.innerHTML = `<div class="cart-items-list">${itemsHtml}</div>`;
+
+  // Update Summary Rows
+  const totalQtyEl = document.getElementById('cartSummaryTotalQty');
+  if (totalQtyEl) totalQtyEl.textContent = `${totalCount} pcs`;
+
+  const subtotalEl = document.getElementById('cartSummarySubtotal');
+  if (subtotalEl) subtotalEl.textContent = formatRupiah(grandSubtotal);
+
+  const savingsRow = document.getElementById('cartSummarySavingsRow');
+  const savingsEl = document.getElementById('cartSummarySavings');
+  if (savingsRow && savingsEl) {
+    if (grandSavings > 0) {
+      savingsRow.style.display = 'flex';
+      savingsEl.textContent = formatRupiah(grandSavings);
+    } else {
+      savingsRow.style.display = 'none';
+    }
+  }
+
+  const totalEl = document.getElementById('cartSummaryTotalPrice');
+  if (totalEl) totalEl.textContent = formatRupiah(grandSubtotal);
+}
+
+function changeCartItemQty(cartItemId, delta) {
+  const item = CART.find(i => i.cartItemId === cartItemId);
+  if (!item) return;
+  item.quantity = (item.quantity || 1) + delta;
+  if (item.quantity <= 0) {
+    removeCartItem(cartItemId);
+    return;
+  }
+  if (item.quantity > 99) item.quantity = 99;
+  saveCart();
+  renderCartDrawer();
+}
+
+function removeCartItem(cartItemId) {
+  const item = CART.find(i => i.cartItemId === cartItemId);
+  const title = item ? item.title.slice(0, 20) : 'Item';
+  CART = CART.filter(i => i.cartItemId !== cartItemId);
+  saveCart();
+  renderCartDrawer();
+  showToast(`Produk "${title}..." dihapus dari keranjang.`);
+}
+
+function clearCart() {
+  if (CART.length === 0) return;
+  if (confirm('Kosongkan semua produk di keranjang belanja?')) {
+    CART = [];
+    saveCart();
+    renderCartDrawer();
+    showToast('Keranjang belanja berhasil dikosongkan.');
+  }
+}
+
+function proceedCartToOrderForm() {
+  if (CART.length === 0) {
+    showToast('Keranjang belanja Anda masih kosong.');
+    return;
+  }
+  closeCartModal();
+  openOrderForm(CART, 'cart');
+}
+
+// ===================================================================
+// FITUR 3: FORMULIR PEMESANAN USER (CUSTOMER ORDER CHECKOUT)
+// ===================================================================
+function openOrderFormForActiveProduct() {
+  if (!activeModalProduct) {
+    showToast('Pilih produk terlebih dahulu.');
+    return;
+  }
+  const p = activeModalProduct;
+  const variant = activeSelectedVariant || (p.variants && p.variants[0]) || 'Standar';
+  const qtyInput = document.getElementById('modalDetailQty');
+  const qty = qtyInput ? (parseInt(qtyInput.value, 10) || 1) : 1;
+
+  const singleItem = [{
+    cartItemId: 'direct_' + p.id + '_' + Date.now(),
+    productId: p.id,
+    title: p.title,
+    price: p.promoPrice,
+    originalPrice: p.originalPrice || p.promoPrice,
+    img: p.img,
+    seller: p.seller,
+    location: p.location,
+    phone: p.phone || '6285771624349',
+    variant: variant,
+    quantity: qty
+  }];
+
+  closeProductDetailModal();
+  openOrderForm(singleItem, 'product');
+}
+
+function openOrderForm(items, source = 'product') {
+  activeCheckoutItems = items || [];
+  activeCheckoutSource = source;
+
+  if (activeCheckoutItems.length === 0) {
+    showToast('Tidak ada produk yang dipilih untuk dipesan.');
+    return;
+  }
+
+  renderOrderPreview(activeCheckoutItems);
+
+  // Auto-fill saved customer data from localStorage
+  try {
+    const savedName = localStorage.getItem('kopia_customer_name');
+    const savedPhone = localStorage.getItem('kopia_customer_phone');
+    const savedAddress = localStorage.getItem('kopia_customer_address');
+    const savedCity = localStorage.getItem('kopia_customer_city');
+    const savedPostal = localStorage.getItem('kopia_customer_postal');
+
+    if (savedName && document.getElementById('orderCustomerName')) {
+      document.getElementById('orderCustomerName').value = savedName;
+    }
+    if (savedPhone && document.getElementById('orderCustomerPhone')) {
+      document.getElementById('orderCustomerPhone').value = savedPhone;
+    }
+    if (savedAddress && document.getElementById('orderCustomerAddress')) {
+      document.getElementById('orderCustomerAddress').value = savedAddress;
+    }
+    if (savedCity && document.getElementById('orderCustomerCity')) {
+      document.getElementById('orderCustomerCity').value = savedCity;
+    }
+    if (savedPostal && document.getElementById('orderCustomerPostal')) {
+      document.getElementById('orderCustomerPostal').value = savedPostal;
+    }
+  } catch (e) {}
+
+  const modal = document.getElementById('userOrderModal');
+  if (!modal) return;
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeOrderModal() {
+  const modal = document.getElementById('userOrderModal');
+  if (modal) modal.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function handleOrderOverlayClick(e) {
+  if (e.target && e.target.id === 'userOrderModal') {
+    closeOrderModal();
+  }
+}
+
+function renderOrderPreview(items) {
+  const listEl = document.getElementById('orderPreviewList');
+  const totalValEl = document.getElementById('orderPreviewTotalVal');
+  if (!listEl) return;
+
+  let grandTotal = 0;
+  listEl.innerHTML = items.map(item => {
+    const itemSubtotal = item.price * item.quantity;
+    grandTotal += itemSubtotal;
+    return `
+      <div class="order-preview-item">
+        <div class="order-preview-item-info">
+          <img src="${item.img}" class="order-preview-thumb" alt="${item.title}">
+          <div>
+            <div class="order-preview-text-name">${item.title}</div>
+            <div class="order-preview-text-meta">${item.quantity}x ${formatRupiah(item.price)} • Varian: ${item.variant}</div>
+          </div>
+        </div>
+        <div style="font-weight:700; color:var(--primary); font-size:13.5px; white-space:nowrap;">
+          ${formatRupiah(itemSubtotal)}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  if (totalValEl) {
+    totalValEl.textContent = formatRupiah(grandTotal);
+  }
+}
+
+function selectPaymentBank(chipEl) {
+  document.querySelectorAll('.payment-bank-chip').forEach(c => c.classList.remove('active'));
+  if (chipEl) {
+    chipEl.classList.add('active');
+    const radio = chipEl.querySelector('input[type="radio"]');
+    if (radio) radio.checked = true;
+  }
+}
+
+// Dialog Peringatan Form Order Belum Lengkap
+let firstOrderErrorInput = null;
+
+function showOrderValidationDialog(missingItems) {
+  const modal = document.getElementById('orderValidationDialogModal');
+  const listEl = document.getElementById('valDialogMissingList');
+  if (!modal || !listEl) return;
+
+  listEl.innerHTML = missingItems.map(item => `
+    <li><strong>${item.title}:</strong> ${item.desc}</li>
+  `).join('');
+
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeOrderValidationDialog() {
+  const modal = document.getElementById('orderValidationDialogModal');
+  if (modal) modal.classList.remove('active');
+  if (firstOrderErrorInput) {
+    firstOrderErrorInput.focus();
+    if (firstOrderErrorInput.scrollIntoView) {
+      firstOrderErrorInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+}
+
+function handleValidationDialogOverlayClick(e) {
+  if (e.target && e.target.id === 'orderValidationDialogModal') {
+    closeOrderValidationDialog();
+  }
+}
+
+function handleCustomerOrderSubmit(e) {
+  if (e) e.preventDefault();
+
+  if (activeCheckoutItems.length === 0) {
+    showToast('Tidak ada produk yang dipesan.');
+    return;
+  }
+
+  const nameInput = document.getElementById('orderCustomerName');
+  const phoneInput = document.getElementById('orderCustomerPhone');
+  const addressInput = document.getElementById('orderCustomerAddress');
+  const cityInput = document.getElementById('orderCustomerCity');
+  const postalInput = document.getElementById('orderCustomerPostal');
+  const notesInput = document.getElementById('orderCustomerNotes');
+  const bankRadio = document.querySelector('input[name="orderBankPayment"]:checked');
+
+  // Bersihkan status error sebelumnya
+  const allFieldElements = [nameInput, phoneInput, addressInput, cityInput, postalInput, notesInput].filter(Boolean);
+  allFieldElements.forEach(el => el.classList.remove('input-field-error'));
+
+  const name = nameInput ? nameInput.value.trim() : '';
+  const rawPhone = phoneInput ? phoneInput.value.trim() : '';
+  const address = addressInput ? addressInput.value.trim() : '';
+  const city = cityInput ? cityInput.value.trim() : '';
+  const postal = postalInput ? postalInput.value.trim() : '';
+  const notes = notesInput ? notesInput.value.trim() : '';
+  const bankChoice = bankRadio ? bankRadio.value : '';
+
+  // VALIDASI KETAT: SEMUA DATA USER WAJIB DIISI
+  const missingFields = [];
+
+  if (!name || name.length < 2) {
+    missingFields.push({
+      title: 'Nama Lengkap Penerima',
+      desc: 'Wajib diisi nama asli penerima (minimal 2 huruf)',
+      el: nameInput
+    });
+    if (nameInput) nameInput.classList.add('input-field-error');
+  }
+
+  const cleanDigits = rawPhone.replace(/[^0-9]/g, '');
+  if (!rawPhone || cleanDigits.length < 9 || cleanDigits.length > 15) {
+    missingFields.push({
+      title: 'Nomor WhatsApp Aktif',
+      desc: 'Wajib diisi nomor WhatsApp yang valid (9–15 digit angka)',
+      el: phoneInput
+    });
+    if (phoneInput) phoneInput.classList.add('input-field-error');
+  }
+
+  if (!address || address.length < 6) {
+    missingFields.push({
+      title: 'Alamat Lengkap Pengiriman',
+      desc: 'Wajib diisi nama jalan, nomor rumah, RT/RW, dan patokan agar paket tidak tersesat',
+      el: addressInput
+    });
+    if (addressInput) addressInput.classList.add('input-field-error');
+  }
+
+  if (!city || city.length < 3) {
+    missingFields.push({
+      title: 'Kota / Kabupaten & Provinsi',
+      desc: 'Wajib diisi untuk penentuan tarif ongkos kirim ekspedisi',
+      el: cityInput
+    });
+    if (cityInput) cityInput.classList.add('input-field-error');
+  }
+
+  if (!postal || postal.length < 4) {
+    missingFields.push({
+      title: 'Kode Pos Pengiriman',
+      desc: 'Wajib diisi kode pos wilayah pengiriman (contoh: 40135)',
+      el: postalInput
+    });
+    if (postalInput) postalInput.classList.add('input-field-error');
+  }
+
+  if (!bankChoice) {
+    missingFields.push({
+      title: 'Pilihan Bank Pembayaran',
+      desc: 'Wajib memilih salah satu opsi transfer bank resmi toko',
+      el: document.getElementById('paymentBankSelector')
+    });
+  }
+
+  if (!notes || notes.length === 0) {
+    missingFields.push({
+      title: 'Catatan Tambahan untuk Penjual',
+      desc: 'Wajib diisi instruksi khusus (contoh: Packing bubble wrap / tulis "Tidak ada" jika tanpa catatan)',
+      el: notesInput
+    });
+    if (notesInput) notesInput.classList.add('input-field-error');
+  }
+
+  // JIKA ADA DATA YANG KELEWAT: TAMPILKAN DIALOG PERINGATAN INTERAKTIF
+  if (missingFields.length > 0) {
+    firstOrderErrorInput = missingFields[0].el;
+    showOrderValidationDialog(missingFields);
+
+    // Hapus highlight merah secara otomatis saat user mulai mengetik
+    allFieldElements.forEach(input => {
+      input.addEventListener('input', () => input.classList.remove('input-field-error'), { once: true });
+    });
+    return;
+  }
+
+  // Format nomor WhatsApp pembeli
+  let cleanCustomerPhone = rawPhone.replace(/[^0-9]/g, '');
+  if (cleanCustomerPhone.startsWith('0')) {
+    cleanCustomerPhone = '62' + cleanCustomerPhone.slice(1);
+  }
+
+  // Simpan data pembeli di localStorage untuk kenyamanan order berikutnya
+  try {
+    localStorage.setItem('kopia_customer_name', name);
+    localStorage.setItem('kopia_customer_phone', rawPhone);
+    localStorage.setItem('kopia_customer_address', address);
+    localStorage.setItem('kopia_customer_city', city);
+    localStorage.setItem('kopia_customer_postal', postal);
+  } catch (err) {}
+
+  // Generate nomor pesanan unik resmi Kopia
+  const now = new Date();
+  const dateStr = now.getFullYear().toString() +
+    String(now.getMonth() + 1).padStart(2, '0') +
+    String(now.getDate()).padStart(2, '0');
+  const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+  const orderId = `KPA-${dateStr}-${randomSuffix}`;
+
+  // Hitung total dan format rincian item pesanan
+  let grandTotal = 0;
+  let totalSavings = 0;
+  const itemsText = activeCheckoutItems.map((item, idx) => {
+    const subtotal = item.price * item.quantity;
+    grandTotal += subtotal;
+    if (item.originalPrice && item.originalPrice > item.price) {
+      totalSavings += (item.originalPrice - item.price) * item.quantity;
+    }
+    return `${idx + 1}. *${item.title}*\n` +
+           `   • Varian: *${item.variant}*\n` +
+           `   • Jumlah: *${item.quantity} pcs* x ${formatRupiah(item.price)}\n` +
+           `   • Subtotal: *${formatRupiah(subtotal)}*\n` +
+           `   • Penjual: ${item.seller} (${item.location || 'Indonesia'})`;
+  }).join('\n\n');
+
+  // WhatsApp admin tujuan: nomor seller item atau default CS Kopia: 6285771624349
+  const sellerPhone = activeCheckoutItems[0].phone ? String(activeCheckoutItems[0].phone).replace(/[^0-9]/g, '') : '6285771624349';
+
+  // Susun pesan WhatsApp invoice lengkap sesuai data yang diisi pembeli
+  const waMessage =
+    `🛒 *FORMULIR PESANAN RESMI PRODUK LOKAL BY KOPIA*\n` +
+    `═══════════════════════════════════\n` +
+    `🔖 *No. Pesanan:* #${orderId}\n` +
+    `📅 *Tanggal:* ${now.toLocaleString('id-ID')}\n` +
+    `═══════════════════════════════════\n\n` +
+    `👤 *DATA LENGKAP PENERIMA PAKET:*\n` +
+    `• *Nama Lengkap:* ${name}\n` +
+    `• *No. WhatsApp:* ${rawPhone}\n` +
+    `• *Alamat Pengiriman:* ${address}\n` +
+    `• *Kota / Kabupaten & Prov:* ${city}\n` +
+    `• *Kode Pos:* ${postal}\n` +
+    `• *Catatan Pembeli:* ${notes}\n\n` +
+    `💳 *METODE PEMBAYARAN:* Transfer Bank *${bankChoice}*\n` +
+    `🛡️ *Jaminan Transaksi:* 100% Produk Original & Bebas Potongan Admin\n\n` +
+    `📦 *RINCIAN PRODUK PESANAN:*\n` +
+    `${itemsText}\n\n` +
+    `═══════════════════════════════════\n` +
+    `💰 *TOTAL HARGA PRODUK:* *${formatRupiah(grandTotal)}*\n` +
+    (totalSavings > 0 ? `🎉 *Hemat Diskon Promo:* ${formatRupiah(totalSavings)}\n` : '') +
+    `🚚 *Ongkos Kirim:* Dihitung admin via kurir ekspedisi ke alamat di atas\n` +
+    `═══════════════════════════════════\n\n` +
+    `Halo Admin *${activeCheckoutItems[0].seller}*, saya telah mengisi lengkap form pemesanan resmi di atas. Mohon konfirmasi ketersediaan stok, nomor rekening *Bank ${bankChoice}*, serta total ongkos kirim ke alamat saya. Terima kasih! 🙏`;
+
+  const waUrl = `https://wa.me/${sellerPhone}?text=${encodeURIComponent(waMessage)}`;
+
+  // Susun objek data pesanan lengkap (Smart Order Memory)
+  const lastOrderData = {
+    orderId,
+    date: now.toISOString(),
+    dateFormatted: now.toLocaleString('id-ID'),
+    customerName: name,
+    customerPhone: rawPhone,
+    address,
+    city,
+    postal,
+    notes,
+    bankPayment: bankChoice,
+    items: activeCheckoutItems,
+    totalAmount: grandTotal,
+    totalSavings: totalSavings,
+    sellerPhone: sellerPhone,
+    waUrl: waUrl,
+    waMessage: waMessage,
+    status: 'pending_payment'
+  };
+
+  // 1. Simpan otomatis secara persisten ke Cloud Firestore 'orders'
+  syncOrderToFirestore(lastOrderData);
+
+  // 2. Simpan data order lengkap ke LocalStorage untuk akses instan saat user membuka web lagi
+  try {
+    localStorage.setItem('kopia_last_order', JSON.stringify(lastOrderData));
+  } catch (e) {}
+
+  // Simpan ke riwayat pesanan lokal
+  try {
+    const ordersHistory = JSON.parse(localStorage.getItem('kopia_customer_orders') || '[]');
+    ordersHistory.unshift(lastOrderData);
+    localStorage.setItem('kopia_customer_orders', JSON.stringify(ordersHistory.slice(0, 30)));
+  } catch (e) {}
+
+  // Update banner notifikasi & tombol invoice header
+  checkAndRenderSavedInvoiceBanner();
+
+  // Kosongkan keranjang jika order berasal dari keranjang belanja
+  if (activeCheckoutSource === 'cart') {
+    CART = [];
+    saveCart();
+  }
+
+  // Tutup modal form pemesanan
+  closeOrderModal();
+
+  // Buka WhatsApp dengan draf invoice lengkap
+  window.open(waUrl, '_blank');
+
+  // Langsung tampilkan invoice terstruktur di layar
+  setTimeout(() => {
+    openOrderInvoiceModal(lastOrderData);
+  }, 400);
+
+  showToast(`🎉 Pesanan #${orderId} berhasil dibuat & invoice tersimpan otomatis!`);
+}
+
+// ===================================================================
+// FITUR 4: DRAF INVOICE TERSTRUKTUR & NOTIFIKASI PESANAN TERSIMPAN
+// ===================================================================
+let activeViewingInvoice = null;
+
+function checkAndRenderSavedInvoiceBanner() {
+  const banner = document.getElementById('recentOrderFloatingBanner');
+  const btnHeaderInvoice = document.getElementById('btnHeaderInvoice');
+  const drawerBtnInvoice = document.getElementById('drawerBtnInvoice');
+
+  try {
+    const raw = localStorage.getItem('kopia_last_order');
+    if (!raw) {
+      if (banner) banner.style.display = 'none';
+      if (btnHeaderInvoice) btnHeaderInvoice.style.display = 'none';
+      if (drawerBtnInvoice) drawerBtnInvoice.style.display = 'none';
+      return;
+    }
+
+    const order = JSON.parse(raw);
+    if (!order || !order.orderId) {
+      if (banner) banner.style.display = 'none';
+      if (btnHeaderInvoice) btnHeaderInvoice.style.display = 'none';
+      if (drawerBtnInvoice) drawerBtnInvoice.style.display = 'none';
+      return;
+    }
+
+    // Tampilkan tombol invoice di header & drawer
+    if (btnHeaderInvoice) {
+      btnHeaderInvoice.style.display = 'inline-flex';
+    }
+    if (drawerBtnInvoice) {
+      drawerBtnInvoice.style.display = 'inline-flex';
+    }
+
+    // Tampilkan floating banner di pojok bawah
+    if (banner) {
+      const idEl = document.getElementById('bannerOrderId');
+      const descEl = document.getElementById('bannerOrderDesc');
+      if (idEl) idEl.textContent = `#${order.orderId}`;
+      if (descEl) {
+        const itemCount = order.items ? order.items.length : 1;
+        descEl.textContent = `${itemCount} produk • Total ${formatRupiah(order.totalAmount)} • Transfer Bank ${order.bankPayment || 'BCA'}`;
+      }
+      banner.style.display = 'flex';
+    }
+  } catch (err) {
+    if (banner) banner.style.display = 'none';
+    if (btnHeaderInvoice) btnHeaderInvoice.style.display = 'none';
+    if (drawerBtnInvoice) drawerBtnInvoice.style.display = 'none';
+  }
+}
+
+function openOrderInvoiceModal(orderData) {
+  let order = orderData;
+  if (!order) {
+    try {
+      const raw = localStorage.getItem('kopia_last_order');
+      if (raw) order = JSON.parse(raw);
+    } catch (e) {}
+  }
+
+  if (!order || !order.orderId) {
+    showToast('Belum ada pesanan aktif yang tersimpan.');
+    return;
+  }
+
+  activeViewingInvoice = order;
+
+  const modal = document.getElementById('orderInvoiceModal');
+  const bodyEl = document.getElementById('invoiceModalBody');
+  const directWaBtn = document.getElementById('invoiceWaDirectBtn');
+  if (!modal || !bodyEl) return;
+
+  const itemsHtml = (order.items || []).map(item => `
+    <div class="invoice-item-row">
+      <div class="invoice-item-info">
+        <img src="${item.img}" class="invoice-item-thumb" alt="${item.title}">
+        <div>
+          <div class="invoice-item-name">${item.title}</div>
+          <div class="invoice-item-meta">
+            <span>${item.quantity} pcs x ${formatRupiah(item.price)}</span>
+            <span style="color:#4f46e5; font-weight:700;">• Varian: ${item.variant}</span>
+            <div>Penjual: <strong>${item.seller}</strong> (${item.location || 'Indonesia'})</div>
+          </div>
+        </div>
+      </div>
+      <div class="invoice-item-subtotal">${formatRupiah(item.price * item.quantity)}</div>
+    </div>
+  `).join('');
+
+  bodyEl.innerHTML = `
+    <div class="invoice-paper-card">
+      <div class="invoice-brand-row">
+        <div>
+          <div class="invoice-brand-title">Produk_lokal <span class="invoice-brand-by">by kopia</span></div>
+          <div style="font-size:12px; color:#64748b; margin-top:2px;">Etalase Kurasi Produk UMKM &amp; Produsen Nusantara</div>
+        </div>
+        <div style="text-align:right;">
+          <span class="invoice-number-tag">#${order.orderId}</span>
+          <div style="font-size:11.5px; color:#64748b; margin-top:4px;">
+            ${order.dateFormatted || new Date(order.date).toLocaleString('id-ID')}
+          </div>
+        </div>
+      </div>
+
+      <div class="invoice-info-grid">
+        <div class="invoice-info-block">
+          <div class="invoice-info-heading">
+            <span class="material-symbols-outlined" style="font-size:15px; color:#4f46e5;">person_pin</span>
+            <span>Tujuan Pengiriman Paket:</span>
+          </div>
+          <div class="invoice-info-val-main">${order.customerName}</div>
+          <div class="invoice-info-val-sub">
+            <div>📞 WhatsApp: <strong>${order.customerPhone}</strong></div>
+            <div>📍 ${order.address}</div>
+            <div>🏙️ ${order.city} ${order.postal ? `(${order.postal})` : ''}</div>
+            <div style="margin-top:6px; font-style:italic; color:#64748b; background:#fff; padding:6px 10px; border-radius:6px; border:1px dashed #cbd5e1;">
+              📝 Catatan: "${order.notes || 'Tidak ada catatan'}"
+            </div>
+          </div>
+        </div>
+
+        <div class="invoice-info-block">
+          <div class="invoice-info-heading">
+            <span class="material-symbols-outlined" style="font-size:15px; color:#059669;">account_balance</span>
+            <span>Pilihan Rekening Pembayaran:</span>
+          </div>
+          <div class="invoice-info-val-main" style="color:#059669;">Transfer Bank ${order.bankPayment}</div>
+          <div class="invoice-info-val-sub">
+            <div>Status Transaksi: <span style="font-weight:700; color:#d97706;">Menunggu Pembayaran</span></div>
+            <div>Biaya Platform: <strong>0% (Bebas Potongan / Saldo Tertahan)</strong></div>
+            <div style="margin-top:6px; font-size:11.5px; color:#64748b; background:#f0fdf4; padding:6px 10px; border-radius:6px; border:1px solid #bbf7d0;">
+              💡 Nomor rekening resmi toko terkirim otomatis di chat WhatsApp.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="invoice-items-card">
+        <div class="invoice-table-header">
+          <span>Rincian Produk Pesanan</span>
+          <span>Subtotal</span>
+        </div>
+        <div class="invoice-items-rows">
+          ${itemsHtml}
+        </div>
+      </div>
+
+      <div class="invoice-pricing-summary">
+        <div class="invoice-sum-row">
+          <span>Subtotal Harga Produk:</span>
+          <strong>${formatRupiah(order.totalAmount)}</strong>
+        </div>
+        ${order.totalSavings > 0 ? `
+          <div class="invoice-sum-row" style="color:#059669; font-weight:700;">
+            <span>Total Penghematan Promo:</span>
+            <span>-${formatRupiah(order.totalSavings)}</span>
+          </div>
+        ` : ''}
+        <div class="invoice-sum-row">
+          <span>Biaya Pengiriman (Ongkir):</span>
+          <span style="font-style:italic; color:#64748b;">Dihitung admin toko sesuai kurir ekspedisi pilihan</span>
+        </div>
+        <div class="invoice-sum-row invoice-sum-total">
+          <span>Total Tagihan Produk:</span>
+          <strong>${formatRupiah(order.totalAmount)}</strong>
+        </div>
+      </div>
+
+      <div class="invoice-wa-draft-box">
+        <div class="invoice-wa-draft-header">
+          <span class="material-symbols-outlined" style="font-size:16px;">chat</span>
+          <span>Format Draf Pesanan WhatsApp yang Tersimpan (Siap Dikirim):</span>
+        </div>
+        <pre class="invoice-wa-draft-text" id="invoiceWaDraftPreText">${order.waMessage}</pre>
+      </div>
+    </div>
+  `;
+
+  if (directWaBtn) {
+    directWaBtn.href = order.waUrl || `https://wa.me/${order.sellerPhone || '6285771624349'}?text=${encodeURIComponent(order.waMessage || '')}`;
+  }
+
+  modal.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeOrderInvoiceModal() {
+  const modal = document.getElementById('orderInvoiceModal');
+  if (modal) modal.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function handleInvoiceOverlayClick(e) {
+  if (e.target && e.target.id === 'orderInvoiceModal') {
+    closeOrderInvoiceModal();
+  }
+}
+
+function dismissOrderBanner() {
+  const banner = document.getElementById('recentOrderFloatingBanner');
+  if (banner) banner.style.display = 'none';
+  showToast('Notifikasi pesanan ditutup. Anda tetap bisa membukanya lewat tombol "Draf Invoice" di menu atas.');
+}
+
+function clearLastOrder() {
+  if (confirm('Tandai pesanan ini selesai dan bersihkan dari riwayat aktif?')) {
+    localStorage.removeItem('kopia_last_order');
+    checkAndRenderSavedInvoiceBanner();
+    closeOrderInvoiceModal();
+    showToast('Pesanan telah ditandai selesai.');
+  }
+}
+
+function copyInvoiceWhatsAppDraft() {
+  if (!activeViewingInvoice || !activeViewingInvoice.waMessage) {
+    try {
+      const raw = localStorage.getItem('kopia_last_order');
+      if (raw) activeViewingInvoice = JSON.parse(raw);
+    } catch (e) {}
+  }
+  if (!activeViewingInvoice || !activeViewingInvoice.waMessage) {
+    showToast('Draf WhatsApp tidak ditemukan.');
+    return;
+  }
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(activeViewingInvoice.waMessage).then(() => {
+      showToast('📋 Format draf pesanan WhatsApp berhasil disalin!');
+    }).catch(() => {
+      showToast('Format draf pesanan WhatsApp siap dikirim.');
+    });
+  } else {
+    showToast('Format draf pesanan WhatsApp siap dikirim.');
+  }
+}
+
+// Expose all functions to window for reliable HTML event binding
+window.changeModalQuantity = changeModalQuantity;
+window.validateModalQuantity = validateModalQuantity;
+window.updateModalSubtotal = updateModalSubtotal;
+window.addActiveProductToCart = addActiveProductToCart;
+window.openCartModal = openCartModal;
+window.closeCartModal = closeCartModal;
+window.handleCartOverlayClick = handleCartOverlayClick;
+window.changeCartItemQty = changeCartItemQty;
+window.removeCartItem = removeCartItem;
+window.clearCart = clearCart;
+window.proceedCartToOrderForm = proceedCartToOrderForm;
+window.openOrderFormForActiveProduct = openOrderFormForActiveProduct;
+window.openOrderForm = openOrderForm;
+window.closeOrderModal = closeOrderModal;
+window.handleOrderOverlayClick = handleOrderOverlayClick;
+window.selectPaymentBank = selectPaymentBank;
+window.handleCustomerOrderSubmit = handleCustomerOrderSubmit;
+window.showOrderValidationDialog = showOrderValidationDialog;
+window.closeOrderValidationDialog = closeOrderValidationDialog;
+window.handleValidationDialogOverlayClick = handleValidationDialogOverlayClick;
+window.checkAndRenderSavedInvoiceBanner = checkAndRenderSavedInvoiceBanner;
+window.openOrderInvoiceModal = openOrderInvoiceModal;
+window.closeOrderInvoiceModal = closeOrderInvoiceModal;
+window.handleInvoiceOverlayClick = handleInvoiceOverlayClick;
+window.dismissOrderBanner = dismissOrderBanner;
+window.clearLastOrder = clearLastOrder;
+window.copyInvoiceWhatsAppDraft = copyInvoiceWhatsAppDraft;
+window.syncOrderToFirestore = syncOrderToFirestore;
+window.syncSavedOrderFromFirestore = syncSavedOrderFromFirestore;
+window.addCardProductToCart = addCardProductToCart;
+window.buyCardProductNow = buyCardProductNow;
+
+// ===================================================================
+// SIDEBAR NAVIGATION DRAWER CONTROLLER (SESUAI HEADER SCREENSHOT)
+// ===================================================================
+function openNavDrawer() {
+  const overlay = document.getElementById('navDrawerOverlay');
+  if (!overlay) return;
+
+  // Sync cart badge count inside drawer
+  const drawerCartBadge = document.getElementById('drawerCartBadgeCount');
+  if (drawerCartBadge) {
+    const count = getCartCount();
+    drawerCartBadge.textContent = count;
+    drawerCartBadge.style.display = count > 0 ? 'inline-flex' : 'none';
+  }
+
+  // Sync invoice button inside drawer if active order exists
+  const drawerInvoiceBtn = document.getElementById('drawerBtnInvoice');
+  if (drawerInvoiceBtn) {
+    const lastOrder = localStorage.getItem('kopia_last_order');
+    drawerInvoiceBtn.style.display = lastOrder ? 'inline-flex' : 'none';
+  }
+
+  overlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeNavDrawer() {
+  const overlay = document.getElementById('navDrawerOverlay');
+  if (overlay) overlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function handleNavDrawerOverlayClick(e) {
+  if (e.target && e.target.id === 'navDrawerOverlay') {
+    closeNavDrawer();
+  }
+}
+
+function triggerDrawerSearch() {
+  const input = document.getElementById('drawerSearchInput');
+  const term = input ? input.value.trim() : '';
+  closeNavDrawer();
+  if (term) {
+    handleSearch(term);
+    const etalase = document.getElementById('etalaseSection');
+    if (etalase) etalase.scrollIntoView({ behavior: 'smooth' });
+    showToast(`🔍 Menampilkan hasil pencarian produk: "${term}"`);
+  }
+}
+
+window.openNavDrawer = openNavDrawer;
+window.closeNavDrawer = closeNavDrawer;
+window.handleNavDrawerOverlayClick = handleNavDrawerOverlayClick;
+window.triggerDrawerSearch = triggerDrawerSearch;
 
 // ===================================================================
 // INTERACTIVE SEARCH & FILTER CONTROLS
@@ -2493,16 +3678,23 @@ document.addEventListener('DOMContentLoaded', () => {
   renderCatalog();
   initFaqAccordion();
   updateWishlistBadge();
+  updateCartBadges();
+  checkAndRenderSavedInvoiceBanner();
 
   // Close all modals on Escape key
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeProductDetailModal();
       closeWishlistDrawer();
+      closeCartModal();
+      closeOrderModal();
+      closeOrderValidationDialog();
+      closeOrderInvoiceModal();
       closeSellerAdModal();
       closePublishSuccessModal();
       closeSellerDashboardModal();
       closeSellerEditModal();
+      closeNavDrawer();
     }
   });
 
